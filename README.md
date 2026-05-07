@@ -24,5 +24,4 @@ in India track, manage, and grow their plants smarter using AI.
 ## Setup
 1. Download `GreenMind.html`
 2. Open in any browser
-3. Sign up and add your Groq API key from [console.groq.com](https://console.groq.com)
-4. Start growing 🌱
+3. Start growing 🌱
