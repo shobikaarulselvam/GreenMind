@@ -1287,7 +1287,7 @@ async function sendChat(text, imageOverride){
   const finalMsg=msg||(image?'Please analyse this image.':'');
   if(input) input.value='';
   const sendBtn=document.getElementById('send-btn');
-  if(sendBtn){ sendBtn.disabled=true; sendBtn.textContent='…'; }
+  if(sendBtn){ sendBtn.innerHTML='<span style="animation:spin 1s linear infinite;display:inline-block">⟳</span>'; }
 
   // Add user message to display
   const imgUrl=image?image.previewUrl:null;
@@ -1326,7 +1326,7 @@ async function sendChat(text, imageOverride){
     }).join('');
     scrollChat();
   }
-  if(sendBtn){ sendBtn.disabled=false; sendBtn.textContent='Send ↑'; }
+  if(sendBtn){ sendBtn.disabled=false; sendBtn.innerHTML='&#10148;'; }
 }
 
 async function callGeminiVision(msg, image){
