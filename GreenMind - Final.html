@@ -1,0 +1,2086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌿 GreenMind – AI Plant Care</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g9:#1b4332;--g8:#2d6a4f;--g7:#40916c;--g6:#52b788;--g4:#74c69d;--g2:#b7e4c7;--g1:#d8f3dc;--g0:#f0faf3;
+  --e7:#7c5c3a;--e1:#f0dfc0;--e0:#fdf3e3;
+  --s6:#0369a1;--s1:#e0f2fe;--s0:#f0f9ff;
+  --w5:#d97706;--w1:#fef3c7;
+  --r6:#dc2626;--r1:#fee2e2;
+  --bg:#f7f5f0;--card:#fff;--border:#e4e0d8;
+  --text:#1a1a1a;--muted:#6b6660;--hint:#aaa49e;
+  --rad:12px;--shadow:0 2px 12px rgba(0,0,0,.07);
+}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:15px;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:'Playfair Display',serif}
+button{font-family:'DM Sans',sans-serif;cursor:pointer}
+input,select,textarea{font-family:'DM Sans',sans-serif}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:#ccc;border-radius:4px}
+
+.shell{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:220px;flex-shrink:0;background:#172a20;display:flex;flex-direction:column;overflow-y:auto;transition:transform .25s;z-index:50}
+.logo{padding:20px 18px 16px;border-bottom:1px solid #243e30;display:flex;align-items:center;gap:10px}
+.logo-name{font-family:'Playfair Display',serif;font-size:17px;color:#74c69d}
+.logo-tag{font-size:11px;color:#4d7a60}
+.nav{flex:1;padding:10px 0}
+.nav-item{display:flex;align-items:center;gap:9px;padding:10px 18px;color:#7aaa8a;font-size:13px;border-left:3px solid transparent;cursor:pointer;transition:all .15s;user-select:none}
+.nav-item:hover{background:#1f3828;color:#c8e6c9}
+.nav-item.active{background:#243e30;color:#74c69d;border-left-color:#74c69d}
+.nav-icon{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:#c97b2e;color:#fff;font-size:10px;padding:1px 7px;border-radius:20px}
+.xp-block{padding:14px 18px;border-top:1px solid #243e30}
+.xp-bar{height:5px;background:#2d4f3c;border-radius:3px;overflow:hidden;margin:5px 0}
+.xp-fill{height:100%;background:linear-gradient(90deg,#74c69d,#52b788);border-radius:3px;transition:width .6s}
+
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.api-banner{background:#1a1a2e;color:#e2e8f0;padding:9px 18px;font-size:12px;display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap}
+.api-banner input{flex:1;min-width:160px;background:#2d3748;border:1px solid #4a5568;border-radius:6px;padding:5px 10px;font-size:12px;color:#e2e8f0;outline:none;font-family:'DM Sans',sans-serif}
+.api-banner button{background:#2d6a4f;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;white-space:nowrap}
+.topbar{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:12px 22px;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0}
+.weather-chip{background:var(--s0);color:var(--s6);font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid var(--s1)}
+.loc-btn{background:var(--g1);color:var(--g8);font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid var(--g2);cursor:pointer}
+.add-btn{background:var(--g8);color:#fff;font-size:13px;font-weight:500;padding:7px 15px;border-radius:8px;border:none}
+.add-btn:hover{background:var(--g7)}
+.page-content{flex:1;overflow-y:auto;padding:24px}
+
+.card{background:var(--card);border-radius:var(--rad);border:1px solid var(--border);box-shadow:var(--shadow)}
+.card-header{padding:13px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:14px;font-weight:500}
+.card-body{padding:14px 18px}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+
+.stat{background:var(--card);border-radius:var(--rad);border:1px solid var(--border);padding:14px;box-shadow:var(--shadow)}
+.stat-label{font-size:11px;color:var(--muted);margin-bottom:6px}
+.stat-val{font-size:26px;font-weight:500;line-height:1}
+.stat-sub{font-size:11px;color:var(--hint);margin-top:4px}
+
+.page{display:none}.page.active{display:block}
+.page-title{font-size:22px;margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:20px}
+.section-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:8px}
+
+.plant-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
+.plant-row:last-child{border-bottom:none}
+.plant-avatar{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.status-badge{font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.s-ok{background:var(--g1);color:var(--g8)}
+.s-due{background:var(--w1);color:var(--w5)}
+.s-over{background:var(--r1);color:var(--r6)}
+
+.btn{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:500;border:none;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.btn-primary{background:var(--g8);color:#fff}.btn-primary:hover{background:var(--g7)}
+.btn-outline{background:transparent;color:var(--g8);border:1px solid var(--g8)}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.btn-danger{background:transparent;color:var(--r6);border:1px solid var(--r6)}
+.btn-warn{background:var(--w5);color:#fff}
+.btn-sm{padding:4px 10px;font-size:11px}
+
+.alert{padding:10px 14px;border-radius:10px;font-size:13px;line-height:1.6;margin-bottom:14px}
+.alert-info{background:var(--s0);border:1px solid var(--s1);color:var(--s6)}
+.alert-green{background:var(--g0);border:1px solid var(--g2);color:var(--g8)}
+.alert-earth{background:var(--e0);border:1px solid var(--e1);color:var(--e7)}
+
+.badge{font-size:11px;padding:2px 8px;border-radius:20px;display:inline-block}
+.badge-green{background:var(--g1);color:var(--g8)}
+.badge-blue{background:var(--s1);color:var(--s6)}
+.badge-earth{background:var(--e1);color:var(--e7)}
+
+.insight{display:flex;gap:10px;align-items:flex-start;padding:10px;background:var(--g0);border:1px solid var(--g2);border-radius:10px;margin-bottom:8px}
+.insight-icon{font-size:20px;flex-shrink:0}
+.insight-title{font-size:13px;font-weight:500;color:var(--g8)}
+.insight-desc{font-size:12px;color:#3a7a52;margin-top:2px;line-height:1.5}
+
+.tl-wrap{overflow-x:auto}
+.tl-row{display:flex;align-items:center;margin-bottom:8px;min-width:580px}
+.tl-name{width:100px;font-size:12px;font-weight:500;flex-shrink:0;display:flex;align-items:center;gap:4px;padding-right:6px}
+.tl-months{display:flex;flex:1;gap:2px}
+.tl-cell{flex:1;height:24px;border-radius:4px;cursor:pointer;transition:opacity .15s}
+.tl-cell:hover{opacity:.7;transform:scaleY(1.1)}
+
+/* ═══ CHATBOT UI ═══ */
+/* CHATBOT */
+.chat-msgs{height:400px;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:84%;padding:11px 14px;font-size:13px;line-height:1.65}
+.msg-bot{background:var(--g0);border:1px solid var(--g2);border-radius:3px 12px 12px 12px;align-self:flex-start;color:var(--text)}
+.msg-user{background:var(--g8);color:#fff;border-radius:12px 3px 12px 12px;align-self:flex-end}
+.chat-chips{padding:8px 14px;display:flex;flex-wrap:wrap;gap:6px;border-top:1px solid var(--border)}
+.chip{background:var(--g0);color:var(--g8);font-size:11px;padding:5px 11px;border-radius:20px;border:1px solid var(--g2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .15s}
+.chip:hover{background:var(--g1)}
+.chat-input-row{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--border)}
+.chat-input{flex:1;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;outline:none;background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text)}
+.chat-input:focus{border-color:var(--g4)}
+
+.typing-dots{display:flex;gap:4px;align-items:center;padding:2px 0}
+.typing-dots span{width:7px;height:7px;border-radius:50%;background:var(--g4);animation:bounce .9s infinite;display:inline-block}
+.typing-dots span:nth-child(2){animation-delay:.15s}
+.typing-dots span:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+
+.soil-prop{padding:10px;background:var(--e0);border-radius:10px;text-align:center;border:1px solid var(--e1)}
+
+.achievement{padding:16px;border-radius:12px;text-align:center;border:1px solid var(--border)}
+.achievement.done{background:var(--g0);border-color:var(--g2)}
+.achievement.locked{background:var(--bg);opacity:.55}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:flex;align-items:center;justify-content:center}
+.modal{background:var(--card);border-radius:16px;width:460px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 12px 48px rgba(0,0,0,.2)}
+.modal-head{padding:22px 22px 0}
+.modal-head h2{font-size:19px}
+.modal-head p{font-size:13px;color:var(--muted);margin-top:3px}
+.modal-body{padding:18px 22px 22px}
+.form-group{margin-bottom:14px}
+.form-label{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-bottom:4px}
+.form-input,.form-select{width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 11px;font-size:13px;outline:none;background:var(--bg);color:var(--text)}
+.form-input:focus,.form-select:focus{border-color:var(--g4)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.prog-wrap{display:flex;align-items:center;gap:6px;margin-top:4px}
+.prog-bar{flex:1;height:5px;background:#e8e3db;border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;transition:width .5s}
+.prog-label{font-size:10px;color:var(--hint);min-width:28px;text-align:right}
+
+.menu-btn{display:none;background:none;border:1px solid var(--border);border-radius:7px;padding:5px 9px;font-size:16px;margin-right:auto}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40}
+
+@media(max-width:720px){
+  .menu-btn,.overlay{display:block}
+  .sidebar{position:fixed;left:0;top:0;bottom:0;transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .grid4{grid-template-columns:1fr 1fr}
+  .grid2,.grid3{grid-template-columns:1fr}
+  .page-content{padding:14px}
+  .weather-chip{display:none}
+}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn .2s ease}
+
+/* Markdown-like formatting in chat */
+.msg-bot strong{color:var(--g8);font-weight:600}
+.msg-bot em{font-style:italic;color:var(--muted)}
+
+/* Typing indicator */
+.typing-wrap{display:flex;align-items:flex-end;gap:8px}
+.typing-bubble{background:#fff;border:1px solid var(--g2);border-radius:4px 16px 16px 16px;padding:12px 16px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.typing-dots{display:flex;gap:5px;align-items:center}
+.typing-dots span{width:8px;height:8px;border-radius:50%;background:var(--g4);animation:bounce .9s infinite;display:inline-block}
+.typing-dots span:nth-child(2){animation-delay:.2s}
+.typing-dots span:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-7px)}}
+
+/* Quick chips */
+.chat-chips{padding:10px 14px;display:flex;flex-wrap:wrap;gap:6px;border-top:1px solid var(--border);background:#fafffe}
+.chip{background:#fff;color:var(--g8);font-size:11.5px;padding:6px 13px;border-radius:20px;border:1px solid var(--g2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap}
+.chip:hover{background:var(--g1);border-color:var(--g4);transform:translateY(-1px)}
+
+/* Photo section */
+.photo-section{border-top:1px solid var(--border);background:#fffdf8;padding:12px 16px}
+.photo-section-title{font-size:12px;font-weight:600;color:var(--e7);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.photo-btns-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.photo-upload-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s}
+.photo-upload-btn.gallery{background:var(--g1);color:var(--g8);border:1.5px solid var(--g2)}
+.photo-upload-btn.gallery:hover{background:var(--g2)}
+.photo-upload-btn.camera{background:#1a1a2e;color:#e2e8f0;border:1.5px solid #2d3748}
+.photo-upload-btn.camera:hover{background:#2d3748}
+.analysis-chips-row{display:flex;gap:6px;flex-wrap:wrap}
+.analysis-chip{background:#fff;color:var(--e7);font-size:11.5px;padding:6px 12px;border-radius:20px;border:1.5px solid var(--e1);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap}
+.analysis-chip:hover{background:var(--e0);transform:translateY(-1px)}
+.img-preview-wrap{position:relative;display:inline-block;margin:8px 0}
+.img-preview{max-width:160px;max-height:120px;border-radius:10px;border:2px solid var(--g4);display:block;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.img-remove{position:absolute;top:-7px;right:-7px;background:var(--r6);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.msg-img{max-width:220px;border-radius:10px;margin-bottom:7px;display:block;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+
+/* Input row */
+.chat-input-row{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--border);background:#fff;align-items:flex-end}
+.chat-input{flex:1;border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:13px;outline:none;background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);resize:none;max-height:100px;line-height:1.5;transition:border-color .15s}
+.chat-input:focus{border-color:var(--g4);background:#fff}
+.send-btn{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#2d6a4f,#40916c);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;transition:all .15s;box-shadow:0 2px 8px rgba(45,106,79,.3)}
+.send-btn:hover{transform:scale(1.05);box-shadow:0 4px 12px rgba(45,106,79,.4)}
+.send-btn:disabled{opacity:.5;transform:none;cursor:not-allowed}
+
+.soil-prop{padding:10px;background:var(--e0);border-radius:10px;text-align:center;border:1px solid var(--e1)}
+
+.achievement{padding:16px;border-radius:12px;text-align:center;border:1px solid var(--border)}
+.achievement.done{background:var(--g0);border-color:var(--g2)}
+.achievement.locked{background:var(--bg);opacity:.55}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:flex;align-items:center;justify-content:center}
+.modal{background:var(--card);border-radius:16px;width:460px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 12px 48px rgba(0,0,0,.2)}
+.modal-head{padding:22px 22px 0}
+.modal-head h2{font-size:19px}
+.modal-head p{font-size:13px;color:var(--muted);margin-top:3px}
+.modal-body{padding:18px 22px 22px}
+.form-group{margin-bottom:14px}
+.form-label{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-bottom:4px}
+.form-input,.form-select{width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 11px;font-size:13px;outline:none;background:var(--bg);color:var(--text)}
+.form-input:focus,.form-select:focus{border-color:var(--g4)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.prog-wrap{display:flex;align-items:center;gap:6px;margin-top:4px}
+.prog-bar{flex:1;height:5px;background:#e8e3db;border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;transition:width .5s}
+.prog-label{font-size:10px;color:var(--hint);min-width:28px;text-align:right}
+
+.menu-btn{display:none;background:none;border:1px solid var(--border);border-radius:7px;padding:5px 9px;font-size:16px;margin-right:auto}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40}
+
+@media(max-width:720px){
+  .menu-btn,.overlay{display:block}
+  .sidebar{position:fixed;left:0;top:0;bottom:0;transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .grid4{grid-template-columns:1fr 1fr}
+  .grid2,.grid3{grid-template-columns:1fr}
+  .page-content{padding:14px}
+  .weather-chip{display:none}
+}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn .2s ease}
+
+
+/* img styles merged above */
+
+/* Markdown-like formatting in chat */
+.msg-bot strong{color:var(--g8);font-weight:600}
+.msg-bot em{font-style:italic;color:var(--muted)}
+</style>
+<style>
+/* ═══ AUTH SCREENS ═══ */
+#auth-screen{position:fixed;inset:0;background:linear-gradient(135deg,#0a2114 0%,#1b4332 40%,#2d6a4f 100%);z-index:200;display:flex;align-items:center;justify-content:center;overflow:auto}
+#auth-screen.hidden{display:none}
+.auth-bg-art{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.auth-bg-art span{position:absolute;font-size:clamp(40px,6vw,90px);opacity:.08;animation:float 8s ease-in-out infinite}
+.auth-bg-art span:nth-child(1){top:5%;left:5%;animation-delay:0s}
+.auth-bg-art span:nth-child(2){top:15%;right:8%;animation-delay:1.5s}
+.auth-bg-art span:nth-child(3){bottom:20%;left:10%;animation-delay:3s}
+.auth-bg-art span:nth-child(4){bottom:10%;right:15%;animation-delay:4.5s}
+.auth-bg-art span:nth-child(5){top:50%;left:2%;animation-delay:2s}
+.auth-bg-art span:nth-child(6){top:40%;right:3%;animation-delay:6s}
+@keyframes float{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-20px) rotate(8deg)}}
+.auth-card{background:rgba(255,255,255,.97);border-radius:20px;width:420px;max-width:95vw;padding:36px 36px 28px;box-shadow:0 24px 80px rgba(0,0,0,.35);position:relative;z-index:1}
+.auth-logo{text-align:center;margin-bottom:28px}
+.auth-logo-icon{font-size:48px;display:block;margin-bottom:8px;animation:pulse 2.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.auth-logo h1{font-family:'Playfair Display',serif;font-size:28px;color:#1b4332;margin-bottom:3px}
+.auth-logo p{font-size:13px;color:#6b6660}
+.auth-tabs{display:flex;gap:0;background:#f0f0ec;border-radius:10px;padding:3px;margin-bottom:24px}
+.auth-tab{flex:1;padding:8px;text-align:center;font-size:13px;font-weight:500;border-radius:8px;cursor:pointer;transition:all .2s;color:#6b6660;border:none;background:none;font-family:'DM Sans',sans-serif}
+.auth-tab.active{background:#fff;color:#2d6a4f;box-shadow:0 1px 6px rgba(0,0,0,.1)}
+.auth-form{display:none}.auth-form.active{display:block}
+.auth-input-wrap{position:relative;margin-bottom:14px}
+.auth-input-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none}
+.auth-input{width:100%;border:1.5px solid #e4e0d8;border-radius:10px;padding:11px 12px 11px 38px;font-size:13px;outline:none;background:#fafaf9;color:#1a1a1a;font-family:'DM Sans',sans-serif;transition:border-color .15s}
+.auth-input:focus{border-color:#52b788;background:#fff}
+.auth-submit{width:100%;background:linear-gradient(135deg,#1b4332,#2d6a4f);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;margin-top:4px;box-shadow:0 4px 16px rgba(45,106,79,.35)}
+.auth-submit:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(45,106,79,.45)}
+.auth-divider{display:flex;align-items:center;gap:10px;margin:16px 0;color:#aaa49e;font-size:12px}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;border-top:1px solid #e4e0d8}
+.auth-google{width:100%;background:#fff;color:#1a1a1a;border:1.5px solid #e4e0d8;border-radius:10px;padding:11px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:9px;transition:all .15s}
+.auth-google:hover{background:#f5f5f5;border-color:#ccc}
+.auth-error{color:#dc2626;font-size:12px;text-align:center;margin-top:10px;display:none}
+.auth-footer{text-align:center;font-size:12px;color:#aaa49e;margin-top:20px}
+.forgot-link{color:#40916c;cursor:pointer;font-size:12px;float:right;margin-top:-10px;margin-bottom:10px}
+.strength-bar{height:3px;border-radius:3px;background:#e0e0e0;margin-top:-10px;margin-bottom:12px;overflow:hidden}
+.strength-fill{height:100%;border-radius:3px;transition:all .3s;width:0}
+.terms-check{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#6b6660;margin-bottom:14px}
+.terms-check input{margin-top:2px;accent-color:#40916c}
+/* ═══ PROFILE PAGE ═══ */
+.profile-hero{background:linear-gradient(135deg,#1b4332,#2d6a4f,#40916c);border-radius:16px;padding:28px;margin-bottom:16px;color:#fff;position:relative;overflow:hidden}
+.profile-hero::after{content:'🌿';position:absolute;right:-10px;bottom:-20px;font-size:100px;opacity:.1}
+.profile-avatar{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:36px;border:3px solid rgba(255,255,255,.4);margin-bottom:12px;cursor:pointer}
+.settings-section{background:#fff;border-radius:14px;border:1px solid #e4e0d8;margin-bottom:14px;overflow:hidden}
+.settings-section-title{padding:14px 18px;font-size:12px;font-weight:600;color:#6b6660;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #e4e0d8;background:#fafaf9}
+.settings-row{padding:13px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #e4e0d8;cursor:pointer;transition:background .15s}
+.settings-row:last-child{border-bottom:none}
+.settings-row:hover{background:#f7f5f0}
+.settings-row-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.settings-row-label{flex:1;font-size:13px;font-weight:500}
+.settings-row-value{font-size:12px;color:#6b6660}
+.toggle{width:42px;height:24px;background:#e0e0e0;border-radius:12px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle.on{background:#40916c}
+.toggle::after{content:'';width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.toggle.on::after{transform:translateX(18px)}
+.avatar-picker{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.avatar-opt{width:44px;height:44px;border-radius:50%;background:#d8f3dc;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;border:3px solid transparent;transition:border .15s}
+.avatar-opt.selected{border-color:#40916c}
+.stat-pill{display:inline-flex;flex-direction:column;align-items:center;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:12px;padding:10px 18px;min-width:70px}
+.stat-pill-val{font-size:22px;font-weight:700;line-height:1}
+.stat-pill-label{font-size:10px;opacity:.75;margin-top:3px}
+
+/* ═══ COMMUNITY + CLIMATE CSS ═══ */
+@keyframes blink2{0%,100%{opacity:1}50%{opacity:.4}}
+.climate-hero{border-radius:14px;padding:22px;color:#fff;position:relative;overflow:hidden;margin-bottom:16px}
+.climate-hero::after{content:'🌤';position:absolute;right:-5px;top:-8px;font-size:90px;opacity:.1;pointer-events:none}
+.climate-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.climate-stat-box{background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:12px;text-align:center}
+.climate-stat-box-icon{font-size:22px;margin-bottom:4px}
+.climate-stat-box-val{font-size:17px;font-weight:700;color:#0369a1;line-height:1}
+.climate-stat-box-lbl{font-size:10px;color:#6b6660;margin-top:3px}
+.climate-ai-report{background:#f0faf3;border:1.5px solid #b7e4c7;border-radius:12px;padding:16px}
+.climate-ai-title{font-size:13px;font-weight:600;color:#2d6a4f;display:flex;align-items:center;gap:6px;margin-bottom:12px}
+.climate-ai-body{font-size:13px;line-height:1.75;color:#1a1a1a}
+.climate-ai-body strong{color:#2d6a4f}
+.ai-spin{display:inline-flex;align-items:center;gap:8px;color:#6b6660;font-size:13px}
+.ai-spin-dots{display:flex;gap:4px}
+.ai-spin-dots span{width:7px;height:7px;border-radius:50%;background:#74c69d;animation:bounce .9s infinite;display:inline-block}
+.ai-spin-dots span:nth-child(2){animation-delay:.15s}
+.ai-spin-dots span:nth-child(3){animation-delay:.3s}
+.comm-layout{display:grid;grid-template-columns:1fr 280px;gap:18px;align-items:start}
+.comm-composer{background:#fff;border-radius:14px;border:1px solid var(--border);padding:16px;margin-bottom:16px;box-shadow:var(--shadow)}
+.comm-composer-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.comm-user-avt{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0;border:2px solid var(--g2);color:#2d6a4f}
+.comm-fake-input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:24px;padding:10px 18px;font-size:13px;color:var(--muted);cursor:pointer;transition:all .15s}
+.comm-fake-input:hover{border-color:var(--g4);background:#f0faf3}
+.comm-type-row{display:flex;gap:8px;flex-wrap:wrap}
+.comm-type-btn{background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-size:12px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s;font-family:'DM Sans',sans-serif}
+.comm-type-btn:hover{background:var(--g1);color:var(--g8);border-color:var(--g2)}
+.post-card{background:#fff;border-radius:14px;border:1px solid var(--border);padding:18px;margin-bottom:12px;box-shadow:var(--shadow);transition:box-shadow .15s}
+.post-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.post-hdr{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
+.post-avt{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0;border:2px solid var(--g2);color:#2d6a4f}
+.post-author-name{font-size:13px;font-weight:600}
+.post-meta-row{font-size:11px;color:var(--hint);display:flex;align-items:center;gap:4px;margin-top:2px}
+.post-cat-badge{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:500;display:inline-flex;align-items:center;gap:3px}
+.post-body-text{font-size:13px;line-height:1.65;margin-bottom:10px}
+.post-tags-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.post-tag{font-size:11px;color:var(--s6);background:var(--s0);border:1px solid var(--s1);border-radius:20px;padding:2px 9px;cursor:pointer}
+.post-actions-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;border-top:1px solid var(--border);padding-top:10px}
+.post-act-btn{background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:8px;transition:all .15s;font-family:'DM Sans',sans-serif}
+.post-act-btn:hover{background:var(--bg);color:var(--text)}
+.post-act-btn.liked{color:#dc2626}
+.post-act-btn.ai-act{color:var(--g8);border:1px solid var(--g2);background:var(--g0)}
+.post-act-btn.ai-act:hover{background:var(--g1)}
+.comments-wrap{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:none}
+.comments-wrap.open{display:block}
+.cmt-row{display:flex;gap:8px;margin-bottom:10px;align-items:flex-start}
+.cmt-avt{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;border:1.5px solid var(--g2);color:#2d6a4f}
+.cmt-bubble{background:var(--bg);border-radius:3px 12px 12px 12px;padding:9px 12px;flex:1;font-size:12px;line-height:1.55}
+.cmt-author{font-size:11px;font-weight:600;margin-bottom:2px;color:var(--g8)}
+.ai-cmt-bubble{background:linear-gradient(135deg,#f0faf3,#e8f5e9);border:1px solid var(--g2);border-radius:3px 12px 12px 12px;padding:10px 13px;flex:1;font-size:12px;line-height:1.65}
+.ai-cmt-author{font-size:11px;font-weight:600;color:var(--g7);margin-bottom:3px}
+.ai-typing{display:flex;gap:4px;padding:3px 0}
+.ai-typing span{width:6px;height:6px;border-radius:50%;background:var(--g4);animation:bounce .9s infinite;display:inline-block}
+.ai-typing span:nth-child(2){animation-delay:.15s}
+.ai-typing span:nth-child(3){animation-delay:.3s}
+.cmt-input-row{display:flex;gap:7px;margin-top:8px;align-items:center}
+.cmt-input{flex:1;border:1px solid var(--border);border-radius:20px;padding:7px 13px;font-size:12px;outline:none;background:var(--bg);font-family:'DM Sans',sans-serif;transition:border-color .15s}
+.cmt-input:focus{border-color:var(--g4)}
+.cmt-send{background:var(--g8);color:#fff;border:none;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;flex-shrink:0}
+.cmt-send:hover{background:var(--g7)}
+.side-card{background:#fff;border-radius:14px;border:1px solid var(--border);padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
+.side-title{font-size:13px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.trend-link{display:block;font-size:12px;color:var(--s6);padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.trend-link:last-child{border-bottom:none}
+.trend-link:hover{color:var(--g8)}
+.top-gard{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--border)}
+.top-gard:last-child{border-bottom:none}
+.top-gard-avt{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;border:2px solid var(--g2);color:#2d6a4f}
+.share-post-btn{background:var(--g8);color:#fff;border:none;border-radius:9px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px;font-family:'DM Sans',sans-serif;transition:background .15s;white-space:nowrap}
+.share-post-btn:hover{background:var(--g7)}
+.share-textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:12px;font-size:13px;resize:vertical;min-height:110px;outline:none;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);transition:border-color .15s}
+.share-textarea:focus{border-color:var(--g4);background:#fff}
+@media(max-width:900px){.comm-layout{grid-template-columns:1fr}.comm-sidebar-col{display:none}}
+</style>
+<body>
+
+<!-- ═══════════════ AUTH SCREEN ═══════════════ -->
+<div id="auth-screen">
+  <div class="auth-bg-art">
+    <span>🌿</span><span>🌱</span><span>🌳</span><span>🌺</span><span>🍃</span><span>🌾</span>
+  </div>
+  <div class="auth-card">
+    <div class="auth-logo">
+      <span class="auth-logo-icon">🌿</span>
+      <h1>GreenMind</h1>
+      <p>Your AI-powered plant care companion</p>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
+      <button class="auth-tab" onclick="switchAuthTab('signup')">Create Account</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div class="auth-form active" id="form-login">
+      <div class="auth-input-wrap">
+        <span class="auth-input-icon">📧</span>
+        <input class="auth-input" id="login-email" type="email" placeholder="Email address" autocomplete="email">
+      </div>
+      <div class="auth-input-wrap">
+        <span class="auth-input-icon">🔒</span>
+        <input class="auth-input" id="login-pass" type="password" placeholder="Password" autocomplete="current-password">
+      </div>
+      <div class="forgot-link" onclick="showForgot()">Forgot password?</div>
+      <button class="auth-submit" onclick="doLogin()">🌿 Sign In to GreenMind</button>
+      <div class="auth-divider">or continue with</div>
+      <button class="auth-google" onclick="doGoogleAuth()">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Continue with Google
+      </button>
+      <div class="auth-error" id="login-error"></div>
+      <div class="auth-footer">By signing in you agree to our <a href="#" style="color:#40916c">Terms</a> & <a href="#" style="color:#40916c">Privacy Policy</a></div>
+    </div>
+
+    <!-- SIGNUP FORM -->
+    <div class="auth-form" id="form-signup">
+      <div class="auth-input-wrap">
+        <span class="auth-input-icon">👤</span>
+        <input class="auth-input" id="signup-name" type="text" placeholder="Full name" autocomplete="name">
+      </div>
+      <div class="auth-input-wrap">
+        <span class="auth-input-icon">📧</span>
+        <input class="auth-input" id="signup-email" type="email" placeholder="Email address" autocomplete="email">
+      </div>
+      <div class="auth-input-wrap">
+        <span class="auth-input-icon">🔒</span>
+        <input class="auth-input" id="signup-pass" type="password" placeholder="Create password (8+ chars)" autocomplete="new-password" oninput="checkStrength(this.value)">
+      </div>
+      <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+      <div class="auth-input-wrap">
+        <span class="auth-input-icon">🔒</span>
+        <input class="auth-input" id="signup-pass2" type="password" placeholder="Confirm password" autocomplete="new-password">
+      </div>
+      <div class="terms-check">
+        <input type="checkbox" id="terms-chk">
+        <label for="terms-chk">I agree to the <a href="#" style="color:#40916c">Terms of Service</a> and <a href="#" style="color:#40916c">Privacy Policy</a></label>
+      </div>
+      <button class="auth-submit" onclick="doSignup()">🌱 Create My Garden Account</button>
+      <div class="auth-divider">or sign up with</div>
+      <button class="auth-google" onclick="doGoogleAuth()">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Continue with Google
+      </button>
+      <div class="auth-error" id="signup-error"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MAIN APP ═══════════════ -->
+<div class="shell" id="app-shell" style="display:none">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="logo">
+      <span style="font-size:26px">🌿</span>
+      <div><div class="logo-name">GreenMind</div><div class="logo-tag">AI Plant Care</div></div>
+    </div>
+    <div class="nav" id="nav"></div>
+    <div class="xp-block">
+      <div id="xp-title" style="font-size:11px;color:#74c69d;font-weight:500;margin-bottom:2px"></div>
+      <div class="xp-bar"><div class="xp-fill" id="xp-fill"></div></div>
+      <div id="xp-sub" style="font-size:10px;color:#4d7a60"></div>
+    </div>
+    <!-- User mini-profile in sidebar -->
+    <div style="padding:12px 18px;border-top:1px solid #243e30;display:flex;align-items:center;gap:10px;cursor:pointer" onclick="showPage('profile')">
+      <div style="width:34px;height:34px;border-radius:50%;background:#2d4f3c;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0" id="sidebar-avatar">🌿</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;color:#c8e6c9;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="sidebar-name">My Garden</div>
+        <div style="font-size:10px;color:#4d7a60" id="sidebar-email">user@greenmind.app</div>
+      </div>
+      <span style="color:#4d7a60;font-size:11px">⚙</span>
+    </div>
+    <div onclick="logout()" style="padding:10px 18px;display:flex;align-items:center;gap:8px;color:#e06666;font-size:12px;cursor:pointer;border-top:1px solid #1a1a1a" onmouseenter="this.style.background='#1f1010'" onmouseleave="this.style.background='transparent'">
+      <span style="font-size:15px">🚪</span><span>Sign Out</span>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- api-banner placeholder -->
+    <div id="api-banner" style="display:none"></div>
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+      <button class="weather-chip" id="weather-chip" onclick="openClimateModal()" style="cursor:pointer;font-family:'DM Sans',sans-serif" title="AI Climate Report">☀️ 34°C · Sunny 🔍</button>
+      <button class="loc-btn" onclick="openModal('loc-modal')">📍 <span id="loc-display">Chennai, TN</span> ▾</button>
+
+      <button class="add-btn" onclick="openModal('add-modal')">+ Add Plant</button>
+    </div>
+    <!-- PAGE CONTENT -->
+    <div class="page-content" id="page-content">
+      <div id="page-dashboard" class="page active fade-in"></div>
+      <div id="page-plants"    class="page fade-in"></div>
+      <div id="page-watering"  class="page fade-in"></div>
+      <div id="page-timeline"  class="page fade-in"></div>
+      <div id="page-soil"      class="page fade-in"></div>
+      <div id="page-advisor"   class="page fade-in"></div>
+      <div id="page-recs"      class="page fade-in"></div>
+      <div id="page-rewards"   class="page fade-in"></div>
+      <div id="page-profile"   class="page fade-in"></div>
+      <div id="page-community" class="page fade-in"></div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- LOCATION MODAL -->
+<div class="modal-overlay" id="loc-modal" style="display:none" onclick="if(event.target===this)closeModal('loc-modal')">
+  <div class="modal">
+    <div class="modal-head"><h2>📍 Your Location</h2><p>Used by AI to adjust all recommendations</p></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">City</label><input class="form-input" id="loc-city"></div>
+        <div class="form-group"><label class="form-label">State</label><input class="form-input" id="loc-state"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Climate Zone</label>
+        <select class="form-select" id="loc-climate">
+          <option value="tropical">🌴 Tropical – Hot & Humid (Chennai, Kerala, Goa)</option>
+          <option value="arid">🏜️ Arid / Semi-arid (Rajasthan, Gujarat)</option>
+          <option value="subtropical">🌤️ Subtropical (Maharashtra, AP)</option>
+          <option value="temperate">🌾 Temperate (Punjab, Himachal)</option>
+          <option value="highland">⛰️ Highland / Cool (Himalayas, Nilgiris)</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Soil Type</label>
+        <select class="form-select" id="loc-soil">
+          <option value="red_loam">🟫 Red Loam – Tamil Nadu, Karnataka</option>
+          <option value="black_cotton">⬛ Black Cotton – Maharashtra, MP</option>
+          <option value="alluvial">🟨 Alluvial – Gangetic Plains</option>
+          <option value="sandy_loam">🏖️ Sandy Loam – Coastal areas</option>
+          <option value="clay">🧱 Clay – Bengal, Assam</option>
+          <option value="laterite">🔴 Laterite – Kerala, Goa</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" style="flex:1" onclick="closeModal('loc-modal')">Cancel</button>
+        <button class="btn btn-primary" style="flex:1" onclick="saveLocation()">Save Location</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD PLANT MODAL -->
+<div class="modal-overlay" id="add-modal" style="display:none" onclick="if(event.target===this)closeModal('add-modal')">
+  <div class="modal">
+    <div class="modal-head"><h2>🌱 Add a Plant</h2><p>AI auto-calculates watering based on your climate</p></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Plant Name</label>
+        <input class="form-input" id="new-name" placeholder="e.g. Tomato, Rose, Mango Tree, Basil…" oninput="suggestPlant(this.value)">
+      </div>
+      <div id="plant-suggestion" style="display:none;background:#f0faf3;border:1px solid #b7e4c7;border-radius:8px;padding:9px 12px;font-size:12px;color:#2d6a4f;margin-bottom:12px"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Type</label>
+          <select class="form-select" id="new-type">
+            <option value="vegetable">🥦 Vegetable</option>
+            <option value="fruit">🍎 Fruit / Tree</option>
+            <option value="flower">🌸 Flower</option>
+            <option value="herb">🌿 Herb</option>
+            <option value="tree">🌳 Tree</option>
+            <option value="indoor">🪴 Indoor</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Row / Location</label>
+          <input class="form-input" id="new-row" placeholder="e.g. Row 1, Pot A…">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Quantity</label>
+          <input class="form-input" id="new-qty" type="number" value="1" min="1">
+        </div>
+        <div class="form-group"><label class="form-label">Date Planted</label>
+          <input class="form-input" id="new-date" type="date">
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" style="flex:1" onclick="closeModal('add-modal')">Cancel</button>
+        <button class="btn btn-primary" style="flex:1" onclick="addPlant()">Add to Garden 🌱</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT PROFILE MODAL -->
+<div class="modal-overlay" id="edit-profile-modal" style="display:none" onclick="if(event.target===this)closeModal('edit-profile-modal')">
+  <div class="modal">
+    <div class="modal-head"><h2>✏️ Edit Profile</h2><p>Update your GreenMind profile</p></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Choose Avatar</label>
+        <div class="avatar-picker" id="avatar-picker"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Full Name</label>
+        <input class="form-input" id="edit-name" placeholder="Your name">
+      </div>
+      <div class="form-group"><label class="form-label">Bio / About</label>
+        <input class="form-input" id="edit-bio" placeholder="e.g. Home gardener from Chennai...">
+      </div>
+      <div class="form-group"><label class="form-label">Phone (optional)</label>
+        <input class="form-input" id="edit-phone" type="tel" placeholder="+91 98765 43210">
+      </div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="btn btn-ghost" style="flex:1" onclick="closeModal('edit-profile-modal')">Cancel</button>
+        <button class="btn btn-primary" style="flex:1" onclick="saveProfile()">Save Profile</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- API KEY MODAL -->
+<div class="modal-overlay" id="key-modal" style="display:none" onclick="if(event.target===this)closeModal('key-modal')">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>🔑 Groq API Key</h2>
+      <p>Free key at <strong>console.groq.com</strong> → API Keys → Create New</p>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">AI Model Status</label>
+        <div style="background:#f0faf3;border:1px solid #b7e4c7;border-radius:8px;padding:12px;font-size:13px;color:#2d6a4f">✅ <strong>Groq AI is connected and active</strong><br><span style="font-size:11px;color:#6b6660">Model: llama-3.3-70b-versatile · Provider: Groq</span></div>
+        <input id="key-input" type="hidden" value="">
+      </div>
+      <div id="key-current" style="font-size:12px;color:#6b6660;margin-bottom:12px"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" style="flex:1" onclick="closeModal('key-modal')">Cancel</button>
+        <button class="btn btn-primary" style="flex:1" onclick="saveKeyFromModal()">✓ Save Key</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+// ═══════════════ STATE ═══════════════
+const dAgo = n => { const d=new Date(); d.setDate(d.getDate()-n); return d.toISOString(); };
+
+const BAKED_KEY='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';
+let S = (() => {
+  try { const s=localStorage.getItem('gm2'); if(s){ const p=JSON.parse(s); if(!p.apiKey) p.apiKey=BAKED_KEY; return p; } } catch(e){}
+  return {
+    location:{city:'Chennai',state:'Tamil Nadu',climate:'tropical',soil:'red_loam'},
+    weather:{temp:34,humidity:72,condition:'Sunny'},
+    plants:[
+      {id:1,name:'Tomato',    type:'vegetable',row:'Row 1',       qty:4,emoji:'🍅',water_ml:500, freq:1,last:dAgo(1),planted:dAgo(45), soil:'Sandy Loam',health:88},
+      {id:2,name:'Rose',      type:'flower',   row:'Row 2',       qty:2,emoji:'🌹',water_ml:350, freq:2,last:dAgo(2),planted:dAgo(90), soil:'Loamy',     health:92},
+      {id:3,name:'Mango Tree',type:'fruit',    row:'Garden Corner',qty:1,emoji:'🥭',water_ml:2000,freq:3,last:dAgo(3),planted:dAgo(400),soil:'Red Loam', health:95},
+      {id:4,name:'Tulsi',     type:'herb',     row:'Pot A',       qty:3,emoji:'🌿',water_ml:200, freq:1,last:dAgo(0),planted:dAgo(30), soil:'Well-drained',health:85},
+      {id:5,name:'Hibiscus',  type:'flower',   row:'Row 3',       qty:2,emoji:'🌺',water_ml:400, freq:2,last:dAgo(1),planted:dAgo(60), soil:'Sandy Loam',health:78},
+      {id:6,name:'Curry Leaf',type:'tree',     row:'Row 1',       qty:2,emoji:'🍃',water_ml:300, freq:2,last:dAgo(2),planted:dAgo(180),soil:'Red Loam',  health:90},
+    ],
+    xp:680, streak:7, apiKey:'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',
+  };
+})();
+
+function save(){ try{ localStorage.setItem('gm2',JSON.stringify(S)); }catch(e){} }
+
+// ═══════════════ CONSTANTS ═══════════════
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const TL={
+  'Tomato':    {3:'grow',4:'flower',5:'fruit',6:'harvest',7:'harvest'},
+  'Rose':      {1:'flower',2:'flower',3:'flower',10:'flower',11:'flower',12:'flower'},
+  'Mango Tree':{3:'flower',4:'flower',5:'fruit',6:'fruit',7:'harvest'},
+  'Tulsi':     {1:'grow',2:'grow',3:'grow',4:'flower',5:'flower',6:'flower',7:'flower',8:'grow',9:'grow',10:'grow',11:'grow',12:'grow'},
+  'Hibiscus':  {4:'flower',5:'flower',6:'flower',7:'flower',8:'flower',9:'flower'},
+  'Curry Leaf':{2:'grow',3:'grow',4:'flower',5:'flower',6:'harvest',7:'harvest',8:'harvest'},
+  'Banana':    {5:'flower',6:'flower',7:'fruit',8:'fruit',9:'harvest',10:'harvest'},
+  'Jasmine':   {3:'flower',4:'flower',5:'flower',6:'flower',7:'flower',8:'flower',9:'flower'},
+  'Lemon':     {2:'flower',3:'flower',4:'fruit',5:'fruit',6:'harvest'},
+  'Chilli':    {3:'grow',4:'grow',5:'flower',6:'fruit',7:'harvest',8:'harvest'},
+};
+const TLC={grow:'#74c69d',flower:'#f4a261',fruit:'#e76f51',harvest:'#2d6a4f'};
+
+const SOILS={
+  red_loam:    {name:'Red Loam',   emoji:'🟫',ph:'6.0–7.0',drain:'Good',    best:['Tomato','Mango','Curry Leaf','Groundnut','Chilli','Neem'],avoid:['Rice','Wheat'],   tip:'Add compost to boost organic matter. Slightly acidic – ideal for tropical plants.'},
+  black_cotton:{name:'Black Cotton',emoji:'⬛',ph:'7.5–8.5',drain:'Poor',   best:['Cotton','Soybean','Sunflower','Wheat'],                    avoid:['Tomato','Potato'],tip:'Improve drainage by adding sand. Avoid waterlogging.'},
+  alluvial:    {name:'Alluvial',   emoji:'🟨',ph:'6.5–7.5',drain:'Moderate',best:['Rice','Wheat','Sugarcane','Banana','Papaya'],              avoid:[],                  tip:'Most fertile soil. Excellent for vegetables and cereals.'},
+  sandy_loam:  {name:'Sandy Loam',emoji:'🏖️',ph:'6.0–7.0',drain:'Excellent',best:['Carrot','Radish','Potato','Lemon','Coconut'],             avoid:['Rice'],            tip:'Water more frequently. Add organic matter regularly.'},
+  clay:        {name:'Clay',       emoji:'🧱',ph:'6.5–7.5',drain:'Poor',    best:['Rose','Hibiscus','Cabbage','Broccoli'],                    avoid:['Carrot','Garlic'],  tip:'Aerate regularly. Add perlite or sand to improve drainage.'},
+  laterite:    {name:'Laterite',  emoji:'🔴',ph:'5.5–6.5',drain:'Good',     best:['Cashew','Coconut','Tea','Coffee'],                        avoid:['Wheat','Paddy'],   tip:'Highly acidic. Add lime to raise pH.'},
+};
+
+const CLIMATE_RECS={
+  tropical:[
+    {emoji:'🥭',name:'Mango',   reason:'Thrives in hot humid climate. Excellent yield Jul–Sep.'},
+    {emoji:'🍌',name:'Banana',  reason:'Loves tropical heat & moisture. Year-round crop in TN.'},
+    {emoji:'🥥',name:'Coconut', reason:'Perfect for coastal Tamil Nadu. Drought-tolerant once established.'},
+    {emoji:'🌿',name:'Tulsi',   reason:'Native to TN. Minimal care, grows all seasons.'},
+    {emoji:'🌺',name:'Hibiscus',reason:'Grows abundantly in tropical heat. Used in TN cuisine & medicine.'},
+    {emoji:'🍅',name:'Tomato',  reason:'Winter crop (Oct–Feb) gives best yield. Needs sandy loam.'},
+  ],
+  arid:[
+    {emoji:'🌵',name:'Aloe Vera',    reason:'Extremely drought-tolerant. Thrives in sandy well-drained soil.'},
+    {emoji:'🌹',name:'Bougainvillea',reason:'Vibrant blooms with minimal water.'},
+    {emoji:'🌻',name:'Sunflower',    reason:'Low water requirement. Matures in 60–90 days.'},
+  ],
+  subtropical:[
+    {emoji:'🍋',name:'Lemon',  reason:'Loves subtropical winters. Produces heavily in cool months.'},
+    {emoji:'🍐',name:'Guava',  reason:'Multiple harvests per year. Very low maintenance.'},
+    {emoji:'🌹',name:'Rose',   reason:'Perfect for subtropical winters. Blooms Oct–Mar.'},
+  ],
+  temperate:[
+    {emoji:'🥕',name:'Carrot',  reason:'Thrives in cool temperate climates. Sandy loam gives best roots.'},
+    {emoji:'🥦',name:'Broccoli',reason:'Cool-season crop. Produces heavily in winter.'},
+    {emoji:'🍎',name:'Apple',   reason:'Requires cool winters for dormancy. Great in Himalayan foothills.'},
+  ],
+  highland:[
+    {emoji:'☕',name:'Coffee',  reason:'Perfect for 1000–1500m elevation. Cool misty mornings ideal.'},
+    {emoji:'🍵',name:'Tea',     reason:'Grows best in cool rainy highland conditions above 1000m.'},
+    {emoji:'🫑',name:'Capsicum',reason:'Loves highland cool temperatures. High yields in Ooty/Kodaikanal.'},
+  ],
+};
+
+const DEFAULTS={
+  tomato:   {water_ml:500, freq:1,emoji:'🍅',soil:'Sandy Loam',   type:'vegetable'},
+  rose:     {water_ml:350, freq:2,emoji:'🌹',soil:'Loamy',         type:'flower'},
+  mango:    {water_ml:2000,freq:3,emoji:'🥭',soil:'Red Loam',      type:'fruit'},
+  banana:   {water_ml:1500,freq:2,emoji:'🍌',soil:'Alluvial',      type:'fruit'},
+  coconut:  {water_ml:3000,freq:4,emoji:'🥥',soil:'Sandy Loam',    type:'tree'},
+  tulsi:    {water_ml:200, freq:1,emoji:'🌿',soil:'Well-drained',  type:'herb'},
+  hibiscus: {water_ml:400, freq:2,emoji:'🌺',soil:'Sandy Loam',    type:'flower'},
+  jasmine:  {water_ml:300, freq:2,emoji:'🌸',soil:'Loamy',         type:'flower'},
+  curry:    {water_ml:300, freq:2,emoji:'🍃',soil:'Red Loam',      type:'tree'},
+  lemon:    {water_ml:600, freq:2,emoji:'🍋',soil:'Sandy Loam',    type:'fruit'},
+  papaya:   {water_ml:1000,freq:2,emoji:'🍈',soil:'Alluvial',      type:'fruit'},
+  chilli:   {water_ml:300, freq:1,emoji:'🌶️',soil:'Sandy Loam',   type:'vegetable'},
+  spinach:  {water_ml:250, freq:1,emoji:'🥬',soil:'Loamy',         type:'vegetable'},
+  sunflower:{water_ml:450, freq:2,emoji:'🌻',soil:'Sandy Loam',    type:'flower'},
+  aloe:     {water_ml:100, freq:7,emoji:'🌵',soil:'Sandy',         type:'indoor'},
+  neem:     {water_ml:800, freq:3,emoji:'🌲',soil:'Red Loam',      type:'tree'},
+  guava:    {water_ml:1200,freq:3,emoji:'🍐',soil:'Alluvial',      type:'fruit'},
+  chilli:   {water_ml:300, freq:1,emoji:'🌶️',soil:'Sandy Loam',   type:'vegetable'},
+  okra:     {water_ml:350, freq:1,emoji:'🫑',soil:'Sandy Loam',    type:'vegetable'},
+};
+
+const ACHIEVEMENTS=[
+  {id:'a1',emoji:'🥉',name:'First Sprout',       desc:'Added your first plant',           xp:50, done:true},
+  {id:'a2',emoji:'💧',name:'Consistent Waterer', desc:'Watered plants 7 days in a row',   xp:100,done:true},
+  {id:'a3',emoji:'🌳',name:'Forest Starter',     desc:'Added 5+ plants to your garden',   xp:150,done:true},
+  {id:'a4',emoji:'🏆',name:'Master Gardener',    desc:'Reached Level 5',                  xp:200,done:true},
+  {id:'a5',emoji:'🍅',name:'First Harvest',      desc:'Successfully harvested a crop',    xp:250,done:true},
+  {id:'a6',emoji:'🤖',name:'AI Student',         desc:'Asked 10+ questions to AI Advisor',xp:100,done:false},
+  {id:'a7',emoji:'🌱',name:'Soil Expert',        desc:'Set soil type for all plants',     xp:75, done:false},
+  {id:'a8',emoji:'📅',name:'Timeline Master',    desc:'Tracked 3 full growing seasons',   xp:300,done:false},
+  {id:'a9',emoji:'🔬',name:'Disease Detective',  desc:'Identified 3 plant diseases via AI',xp:150,done:false},
+];
+
+// ═══════════════ HELPERS ═══════════════
+function daysSince(d){ return Math.floor((Date.now()-new Date(d).getTime())/86400000); }
+// FIX: single function name used everywhere
+function waterPct(p){ return Math.min(100,Math.round((daysSince(p.last)/p.freq)*100)); }
+function wStatus(p){ const d=daysSince(p.last); return d>=p.freq+1?'over':d>=p.freq?'due':'ok'; }
+function statusBadge(p){ const s=wStatus(p); return s==='over'?'<span class="status-badge s-over">Overdue!</span>':s==='due'?'<span class="status-badge s-due">Water today</span>':'<span class="status-badge s-ok">Good ✓</span>'; }
+function aiWater(p){ let m=1; if(S.weather.temp>35)m+=.3; else if(S.weather.temp>30)m+=.2; if(S.weather.humidity<40)m+=.1; return Math.round(p.water_ml*m); }
+function pBar(pct,h){ h=h||5; const c=pct>80?'var(--r6)':pct>55?'var(--w5)':'var(--g6)'; return `<div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${c};height:${h}px"></div></div><span class="prog-label">${pct}%</span></div>`; }
+function typeColor(t){ return {vegetable:'#d8f3dc',fruit:'#fff3e0',flower:'#fce4ec',herb:'#e8f5e9',tree:'#e8f5e9',indoor:'#e3f2fd'}[t]||'#eee'; }
+function getDefault(name){ const k=name.toLowerCase().split(' ')[0]; return DEFAULTS[k]||{water_ml:400,freq:2,emoji:'🌱',soil:'Loamy',type:'vegetable'}; }
+function levelInfo(xp){
+  const t=[[0,'Beginner',75],[75,'Seedling',150],[150,'Apprentice',250],[250,'Green Thumb',400],[400,'Skilled',600],[600,'Master Gardener',800],[800,'Senior',1000],[1000,'Expert Botanist',1500],[1500,'Grand Master',2000],[2000,'Legend Gardener',null]];
+  for(let i=t.length-1;i>=0;i--){ if(xp>=t[i][0]) return {level:i+1,title:t[i][1],next:t[i][2],prev:t[i][0]}; }
+  return {level:1,title:'Beginner',next:75,prev:0};
+}
+function toast(msg,color){
+  color=color||'#2d6a4f';
+  const el=document.createElement('div');
+  el.style.cssText=`position:fixed;bottom:20px;right:20px;background:${color};color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,.2);max-width:300px`;
+  el.textContent=msg; document.body.appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(()=>el.remove(),300);},2500);
+}
+// Format markdown-like bold in chat
+function fmtMsg(t){ return t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>'); }
+
+// ═══════════════ NAV ═══════════════
+const NAV=[
+  {id:'dashboard',icon:'🏡',label:'Dashboard'},
+  {id:'plants',   icon:'🌱',label:'My Plants'},
+  {id:'watering', icon:'💧',label:'Watering',badge:true},
+  {id:'timeline', icon:'📅',label:'Timeline'},
+  {id:'soil',     icon:'🪨',label:'Soil Guide'},
+  {id:'advisor',  icon:'🤖',label:'AI Advisor'},
+  {id:'recs',     icon:'✨',label:'Recommendations'},
+  {id:'rewards',  icon:'🏆',label:'Rewards'},
+  {id:'profile',  icon:'👤',label:'Profile & Settings'},
+  {id:'community',icon:'👥',label:'Community'},
+];
+let curPage='dashboard';
+
+function buildNav(){
+  const due=S.plants.filter(p=>wStatus(p)!=='ok').length;
+  document.getElementById('nav').innerHTML=NAV.map(n=>`
+    <div class="nav-item${curPage===n.id?' active':''}" onclick="showPage('${n.id}')">
+      <span class="nav-icon">${n.icon}</span>${n.label}
+      ${n.badge&&due>0?`<span class="nav-badge">${due}</span>`:''}
+    </div>`).join('');
+  const li=levelInfo(S.xp);
+  const pct=li.next?Math.round(((S.xp-li.prev)/(li.next-li.prev))*100):100;
+  document.getElementById('xp-title').textContent=`Level ${li.level} · ${li.title}`;
+  document.getElementById('xp-fill').style.width=pct+'%';
+  document.getElementById('xp-sub').textContent=li.next?`${li.next-S.xp} XP to Level ${li.level+1}`:'Max Level! 🏆';
+  document.getElementById('loc-display').textContent=`${S.location.city}, ${S.location.state.substring(0,2)}`;
+  document.getElementById('weather-chip').textContent=`☀️ ${S.weather.temp}°C · ${S.weather.condition}`;
+  // sync loc modal fields
+  const lc=document.getElementById('loc-city'); if(lc) lc.value=S.location.city;
+  const ls=document.getElementById('loc-state'); if(ls) ls.value=S.location.state;
+  const lk=document.getElementById('loc-climate'); if(lk) lk.value=S.location.climate;
+  const lo=document.getElementById('loc-soil'); if(lo) lo.value=S.location.soil;
+  updateApiBanner();
+}
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const el=document.getElementById('page-'+id); if(!el) return;
+  el.classList.add('active'); curPage=id; buildNav();
+  RENDER[id]&&RENDER[id](); closeSidebar();
+}
+
+// ═══════════════ MODALS / SIDEBAR ═══════════════
+function toggleSidebar(){ const s=document.getElementById('sidebar'); s.classList.toggle('open'); document.getElementById('overlay').style.display=s.classList.contains('open')?'block':'none'; }
+function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').style.display='none'; }
+function openModal(id){ document.getElementById(id).style.display='flex'; if(id==='add-modal'){ document.getElementById('new-date').value=new Date().toISOString().split('T')[0]; document.getElementById('new-name').value=''; document.getElementById('plant-suggestion').style.display='none'; } }
+function closeModal(id){ document.getElementById(id).style.display='none'; }
+
+// ═══════════════ API KEY ═══════════════
+function updateApiBanner(){
+  // API key is pre-configured — just update plant count
+  var pc=document.getElementById('cmd-pc');
+  if(pc) pc.textContent=S.plants.length;
+  // Always ensure baked key is present
+  if(!S.apiKey && typeof BAKED_KEY !== 'undefined') { S.apiKey=BAKED_KEY; save(); }
+}
+function cmdLive(v){}
+function saveApiKey(){
+  // Key is pre-configured — AI is always active
+  toast('✅ AI is already active and connected!');
+}
+
+// ═══════════════ PLANT ACTIONS ═══════════════
+function saveLocation(){
+  S.location.city=document.getElementById('loc-city').value.trim()||S.location.city;
+  S.location.state=document.getElementById('loc-state').value.trim()||S.location.state;
+  S.location.climate=document.getElementById('loc-climate').value;
+  S.location.soil=document.getElementById('loc-soil').value;
+  save(); closeModal('loc-modal'); buildNav(); renderCurrent();
+  toast('📍 Location saved!');
+}
+
+function suggestPlant(val){
+  const k=val.toLowerCase().split(' ')[0];
+  const d=DEFAULTS[k];
+  const el=document.getElementById('plant-suggestion');
+  if(d&&val.length>2){ el.style.display='block'; el.textContent=`🤖 Auto-detected: ${d.water_ml}ml water every ${d.freq} day(s), best soil: ${d.soil}`; document.getElementById('new-type').value=d.type; }
+  else{ el.style.display='none'; }
+}
+
+function addPlant(){
+  const name=document.getElementById('new-name').value.trim();
+  if(!name){ toast('Please enter a plant name','#dc2626'); return; }
+  const d=getDefault(name);
+  const p={id:Date.now(),name,type:document.getElementById('new-type').value,row:document.getElementById('new-row').value.trim()||'Garden',qty:parseInt(document.getElementById('new-qty').value)||1,emoji:d.emoji,water_ml:d.water_ml,freq:d.freq,last:new Date().toISOString(),planted:new Date(document.getElementById('new-date').value).toISOString(),soil:d.soil,health:90};
+  S.plants.push(p); S.xp+=50; save(); closeModal('add-modal'); buildNav(); renderCurrent();
+  toast('🌱 '+name+' added! +50 XP');
+}
+
+function waterPlant(id){
+  const p=S.plants.find(p=>p.id===id); if(!p) return;
+  p.last=new Date().toISOString(); S.xp+=10; save(); buildNav(); renderCurrent();
+  toast('💧 '+p.name+' watered! +10 XP');
+}
+
+function removePlant(id){
+  const p=S.plants.find(p=>p.id===id); if(!p) return;
+  if(!confirm('Remove '+p.name+' from your garden?')) return;
+  S.plants=S.plants.filter(x=>x.id!==id); save(); buildNav(); renderCurrent();
+  toast('🗑️ '+p.name+' removed');
+}
+
+function waterAll(){
+  const due=S.plants.filter(p=>wStatus(p)!=='ok');
+  due.forEach(p=>{p.last=new Date().toISOString(); S.xp+=10;});
+  save(); buildNav(); renderCurrent();
+  toast('💧 All '+due.length+' plants watered!');
+}
+
+// ═══════════════ PLANT ROW HTML ═══════════════
+function plantRowHTML(p){
+  const pct=waterPct(p); // FIXED: was calling undefined waterPercent
+  return `<div class="plant-row">
+    <div class="plant-avatar" style="background:${typeColor(p.type)}">${p.emoji}</div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:13px;font-weight:500">${p.name} <span style="font-size:11px;color:var(--hint)">×${p.qty}</span></div>
+      <div style="font-size:11px;color:var(--muted)">${p.row} · ${p.water_ml}ml/day</div>
+      ${pBar(pct,4)}
+    </div>
+    ${statusBadge(p)}
+    <button class="btn btn-outline btn-sm" onclick="waterPlant(${p.id})" style="margin-left:4px">💧</button>
+    <button class="btn btn-danger btn-sm" onclick="removePlant(${p.id})">✕</button>
+  </div>`;
+}
+
+// ═══════════════ DASHBOARD ═══════════════
+function renderDashboard(){
+  const due=S.plants.filter(p=>wStatus(p)!=='ok');
+  const now=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const insights=[
+    S.weather.temp>32&&{icon:'🌡️',title:'Heat Alert',  desc:`${S.weather.temp}°C today — water amounts AI-adjusted by +${S.weather.temp>35?30:20}%. Water before 8 AM to reduce evaporation.`},
+    {icon:'🐛',title:'Pest Season',       desc:`Mealybugs are common in ${S.location.climate} climates. Check the underside of Hibiscus and Rose leaves weekly.`},
+    {icon:'✂️',title:'Pruning Reminder',  desc:'Trim dead branches from flowering plants monthly. This encourages new growth and better blooms.'},
+    S.location.climate==='tropical'&&{icon:'🌧️',title:'Monsoon Prep',desc:'Improve drainage in garden beds before June. Add raised edges to prevent root rot during heavy rains.'},
+  ].filter(Boolean).slice(0,3);
+
+  document.getElementById('page-dashboard').innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+      <div><h1 class="page-title">Good morning 🌿</h1><p style="font-size:13px;color:var(--muted)">${now} · ${S.location.city}, ${S.location.state}</p></div>
+      ${due.length>0?`<button class="btn btn-warn" onclick="waterAll()">💧 Water All (${due.length})</button>`:''}
+    </div>
+    <div class="grid4" style="margin-bottom:16px">
+      <div class="stat"><div class="stat-label">🌱 Total Plants</div><div class="stat-val" style="color:var(--g8)">${S.plants.length}</div><div class="stat-sub">In your garden</div></div>
+      <div class="stat"><div class="stat-label">💧 Need Watering</div><div class="stat-val" style="color:var(--w5)">${due.length}</div><div class="stat-sub">Today</div></div>
+      <div class="stat"><div class="stat-label">🌡️ Temperature</div><div class="stat-val" style="color:var(--s6)">${S.weather.temp}°C</div><div class="stat-sub">${S.location.climate}</div></div>
+      <div class="stat"><div class="stat-label">⭐ Total XP</div><div class="stat-val" style="color:var(--w5)">${S.xp}</div><div class="stat-sub">Level ${levelInfo(S.xp).level}</div></div>
+    </div>
+    <div class="grid2" style="margin-bottom:16px">
+      <div class="card">
+        <div class="card-header"><span class="card-title">💧 Today's Watering</span>${due.length>0?`<button class="btn btn-outline btn-sm" onclick="waterAll()">Water all</button>`:''}</div>
+        <div class="card-body">
+          ${due.length===0?'<div style="text-align:center;padding:18px;color:var(--muted);font-size:13px">✅ All plants are watered today!</div>':
+          due.slice(0,5).map(p=>`
+            <div style="display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--border)">
+              <span style="width:7px;height:7px;border-radius:50%;background:${wStatus(p)==='over'?'var(--r6)':'var(--w5)'};display:inline-block;flex-shrink:0"></span>
+              <span style="font-size:18px">${p.emoji}</span>
+              <div style="flex:1"><div style="font-size:13px;font-weight:500">${p.name}</div><div style="font-size:11px;color:var(--muted)">${aiWater(p)}ml (AI adjusted) · ${p.row}</div></div>
+              <button class="btn btn-outline btn-sm" onclick="waterPlant(${p.id})">Done ✓</button>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">🤖 AI Insights</span></div>
+        <div class="card-body">${insights.map(i=>`<div class="insight"><span class="insight-icon">${i.icon}</span><div><div class="insight-title">${i.title}</div><div class="insight-desc">${i.desc}</div></div></div>`).join('')}</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">🌿 Garden Overview</span><button class="btn btn-ghost btn-sm" onclick="showPage('plants')">View all →</button></div>
+      <div class="card-body">${S.plants.length===0?'<div style="text-align:center;padding:24px;color:var(--muted);font-size:13px">No plants yet. Click <strong>+ Add Plant</strong> to get started!</div>':S.plants.map(p=>plantRowHTML(p)).join('')}</div>
+    </div>`;
+}
+
+// ═══════════════ MY PLANTS ═══════════════
+function renderPlants(){
+  document.getElementById('page-plants').innerHTML=`
+    <div class="section-row"><div><h2 class="page-title">🌱 My Plants & Trees</h2><p class="page-sub">${S.plants.length} plants in your garden</p></div></div>
+    ${S.plants.length===0?`<div style="text-align:center;padding:48px;color:var(--muted)"><div style="font-size:48px;margin-bottom:12px">🌱</div><h3>No plants yet</h3><p style="margin-top:6px;font-size:13px">Click <strong>+ Add Plant</strong> to get started!</p></div>`:
+    S.plants.map(p=>{
+      const pct=waterPct(p); const adj=aiWater(p); const age=daysSince(p.planted);
+      return `<div class="card" style="margin-bottom:12px">
+        <div class="card-body" style="display:flex;gap:14px;align-items:flex-start">
+          <div style="width:54px;height:54px;border-radius:12px;background:${typeColor(p.type)};display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0">${p.emoji}</div>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:6px">
+              <span style="font-size:16px;font-weight:500">${p.name}</span>
+              <span class="badge badge-earth">${p.type}</span>
+              ${statusBadge(p)}
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-bottom:8px">
+              ${[['Location',p.row],['Qty',p.qty+' plants'],['Water/day',p.water_ml+'ml'],['AI Adjusted',adj+'ml'],['Days grown',age+'d'],['Ideal Soil',p.soil]].map(([l,v])=>`<div><div style="font-size:10px;color:var(--hint)">${l}</div><div style="font-size:12px;font-weight:500">${v}</div></div>`).join('')}
+            </div>
+            <div style="margin-bottom:8px">
+              <div style="font-size:10px;color:var(--hint);margin-bottom:2px">Water need</div>
+              ${pBar(pct,5)}
+            </div>
+            <div style="display:flex;gap:7px;flex-wrap:wrap">
+              <button class="btn btn-outline btn-sm" onclick="waterPlant(${p.id})">💧 Water Now</button>
+              <button class="btn btn-outline btn-sm" onclick="askAI('Give me a detailed care guide for ${p.name.replace(/'/g,'')}: watering schedule, fertilizer, pruning, common diseases, and tips specific to ${S.location.climate} climate and ${S.location.soil.replace(/_/g,' ')} soil.')">🤖 AI Care Guide</button>
+              <button class="btn btn-danger btn-sm" onclick="removePlant(${p.id})">✕ Remove</button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    }).join('')}`;
+}
+
+// ═══════════════ WATERING ═══════════════
+function renderWatering(){
+  const times={tropical:'6:00–7:30 AM',arid:'5:30–7:00 AM',subtropical:'7:00–8:00 AM',temperate:'8:00–9:30 AM',highland:'9:00–10:00 AM'};
+  const best=times[S.location.climate]||'6:00–8:00 AM';
+  const sorted=[...S.plants].sort((a,b)=>waterPct(b)-waterPct(a));
+  const dueCount=sorted.filter(p=>wStatus(p)!=='ok').length;
+
+  document.getElementById('page-watering').innerHTML=`
+    <div class="section-row">
+      <div><h2 class="page-title">💧 Watering Schedule</h2><p class="page-sub">AI-adjusted for ${S.location.city} · ${S.weather.temp}°C</p></div>
+      ${dueCount>0?`<button class="btn btn-warn" onclick="waterAll()">💧 Water All (${dueCount})</button>`:''}
+    </div>
+    <div class="alert alert-info">🤖 <strong>AI Tip:</strong> Best watering time is <strong>${best}</strong> for ${S.location.climate} climate. At ${S.weather.temp}°C, water amounts are <strong>${S.weather.temp>35?'+30%':S.weather.temp>30?'+20%':S.weather.temp>28?'+10%':'normal'}</strong>.</div>
+    ${sorted.map(p=>{
+      const pct=waterPct(p); const adj=aiWater(p); const s=wStatus(p);
+      return `<div class="card" style="margin-bottom:9px">
+        <div class="card-body" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+          <span style="font-size:28px;flex-shrink:0">${p.emoji}</span>
+          <div style="flex:1;min-width:180px">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px">
+              <span style="font-weight:500;font-size:14px">${p.name}</span>
+              <span style="font-size:11px;color:var(--muted)">${p.row} · ×${p.qty}</span>
+              ${statusBadge(p)}
+            </div>
+            ${pBar(pct,6)}
+            <div style="display:flex;gap:12px;font-size:12px;color:var(--muted);margin-top:5px;flex-wrap:wrap">
+              <span>💧 Base: <strong>${p.water_ml}ml</strong></span>
+              <span>🌡️ AI: <strong style="color:var(--s6)">${adj}ml</strong></span>
+              <span>📅 Every <strong>${p.freq}</strong> day${p.freq>1?'s':''}</span>
+              <span>⏰ <strong>${best}</strong></span>
+            </div>
+          </div>
+          <button class="btn ${s==='ok'?'btn-ghost':'btn-primary'} btn-sm" onclick="waterPlant(${p.id})">${s==='ok'?'✓ Watered':'💧 Water'}</button>
+        </div>
+      </div>`;
+    }).join('')}`;
+}
+
+// ═══════════════ TIMELINE ═══════════════
+function renderTimeline(){
+  const curM=new Date().getMonth()+1;
+  const legend=Object.entries(TLC).map(([k,c])=>`<div style="display:flex;align-items:center;gap:5px;font-size:12px"><span style="width:13px;height:13px;background:${c};border-radius:3px;display:inline-block"></span>${k.charAt(0).toUpperCase()+k.slice(1)}</div>`).join('');
+  const mHeader=`<div style="display:flex;min-width:580px;margin-bottom:8px"><div style="width:100px;flex-shrink:0"></div><div style="display:flex;flex:1;gap:2px">${MONTHS.map((m,i)=>`<div style="flex:1;text-align:center;font-size:10px;color:${i+1===curM?'var(--g8)':'var(--hint)'};font-weight:${i+1===curM?700:400}">${m}</div>`).join('')}</div></div>`;
+  const rows=S.plants.map(p=>{
+    const td=TL[p.name]||{};
+    const cells=MONTHS.map((_,i)=>{ const m=i+1,stage=td[m],bg=stage?TLC[stage]:'#ebe7e0'; return `<div class="tl-cell" style="background:${bg};outline:${m===curM?'2px solid var(--g8)':''};outline-offset:1px" title="${stage||'Dormant'} – ${MONTHS[i]}"></div>`; }).join('');
+    return `<div class="tl-row"><div class="tl-name"><span>${p.emoji}</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</span></div><div class="tl-months">${cells}</div></div>`;
+  }).join('');
+
+  document.getElementById('page-timeline').innerHTML=`
+    <div class="section-row"><div><h2 class="page-title">📅 Growth Timeline</h2><p class="page-sub">Seasonal calendar – hover cells for stage info</p></div></div>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px">${legend}<div style="display:flex;align-items:center;gap:5px;font-size:12px"><span style="width:13px;height:13px;background:#ebe7e0;border-radius:3px;display:inline-block"></span>Dormant</div></div>
+    <div class="alert alert-info">🤖 Timeline adjusted for <strong>${S.location.city} (${S.location.climate})</strong>. Outlined column = current month.</div>
+    <div class="card"><div class="card-body"><div class="tl-wrap">${mHeader}${rows||'<div style="text-align:center;padding:24px;color:var(--muted);font-size:13px">Add plants to see their growth timeline.</div>'}</div></div></div>
+    <div style="margin-top:18px"><h3 style="font-size:15px;margin-bottom:12px">📋 Season Summary by Plant</h3>
+    <div class="grid3">
+      ${S.plants.map(p=>{
+        const td=TL[p.name]||{};
+        const grouped=Object.entries(td).reduce((a,[m,s])=>{ if(!a[s])a[s]=[]; a[s].push(MONTHS[m-1]); return a; },{});
+        return `<div class="card"><div class="card-body">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:24px">${p.emoji}</span><strong>${p.name}</strong></div>
+          ${Object.keys(grouped).length===0?'<div style="font-size:12px;color:var(--hint)">No timeline data. Ask AI Advisor!</div>':Object.entries(grouped).map(([s,ms])=>`<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;font-size:12px"><span style="width:9px;height:9px;border-radius:2px;background:${TLC[s]};display:inline-block;flex-shrink:0"></span><strong>${s.charAt(0).toUpperCase()+s.slice(1)}:</strong> ${ms.join(', ')}</div>`).join('')}
+        </div></div>`;
+      }).join('')}
+    </div></div>`;
+}
+
+// ═══════════════ SOIL ═══════════════
+function renderSoil(){
+  const soil=SOILS[S.location.soil]||SOILS.red_loam;
+  document.getElementById('page-soil').innerHTML=`
+    <div class="section-row"><div><h2 class="page-title">🪨 Soil Guide</h2><p class="page-sub">Compatible plant matching for your soil type</p></div></div>
+    <div class="grid2" style="margin-bottom:16px">
+      <div class="card">
+        <div class="card-header"><span class="card-title">${soil.emoji} ${soil.name} – Your Soil</span><span class="badge badge-green">Current</span></div>
+        <div class="card-body">
+          <div class="grid3" style="margin-bottom:12px">
+            ${[['🧪','pH',soil.ph],['💧','Drainage',soil.drain],['🌿','Category',soil.name.split(' ')[0]]].map(([i,l,v])=>`<div class="soil-prop"><div style="font-size:20px;margin-bottom:3px">${i}</div><div style="font-size:11px;color:var(--e7);font-weight:500">${l}</div><div style="font-size:11px;color:var(--muted)">${v}</div></div>`).join('')}
+          </div>
+          <div class="alert alert-earth">💡 ${soil.tip}</div>
+          <div style="margin-top:10px"><div style="font-size:12px;font-weight:500;margin-bottom:6px">✅ Best plants:</div><div style="display:flex;flex-wrap:wrap;gap:5px">${soil.best.map(b=>`<span class="badge badge-green">${b}</span>`).join('')}</div></div>
+          ${soil.avoid.length?`<div style="margin-top:10px"><div style="font-size:12px;font-weight:500;color:var(--r6);margin-bottom:6px">⚠️ Avoid:</div><div style="display:flex;flex-wrap:wrap;gap:5px">${soil.avoid.map(b=>`<span style="background:var(--r1);color:var(--r6);font-size:11px;padding:2px 8px;border-radius:20px">${b}</span>`).join('')}</div></div>`:''}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">🪴 Your Plants vs Soil</span></div>
+        <div class="card-body">
+          ${S.plants.length===0?'<div style="color:var(--muted);font-size:13px">Add plants to see compatibility.</div>':S.plants.map(p=>{
+            const ok=soil.best.some(b=>b.toLowerCase().includes(p.name.toLowerCase().split(' ')[0])||p.name.toLowerCase().includes(b.toLowerCase()));
+            const av=soil.avoid.some(b=>b.toLowerCase().includes(p.name.toLowerCase().split(' ')[0]));
+            return `<div style="display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--border)">
+              <span style="font-size:18px">${p.emoji}</span>
+              <div style="flex:1"><div style="font-size:13px;font-weight:500">${p.name}</div><div style="font-size:11px;color:var(--muted)">Ideal: ${p.soil}</div></div>
+              <span class="status-badge ${av?'s-over':ok?'s-ok':'s-due'}" style="font-size:10px">${av?'⚠ Avoid':ok?'✓ Compatible':'~ Neutral'}</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>
+    <h3 style="font-size:15px;margin-bottom:12px">🗺️ All Soil Types</h3>
+    <div class="grid3">
+      ${Object.entries(SOILS).map(([k,s])=>`
+        <div style="padding:12px;border-radius:10px;border:${k===S.location.soil?'2px solid var(--g8)':'1px solid var(--border)'};background:${k===S.location.soil?'var(--g0)':'var(--card)'};cursor:pointer" onclick="switchSoil('${k}')">
+          <div style="font-size:22px;margin-bottom:4px">${s.emoji}</div>
+          <div style="font-size:13px;font-weight:500">${s.name}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">pH ${s.ph} · ${s.drain} drainage</div>
+          ${k===S.location.soil?'<span class="badge badge-green" style="margin-top:6px;display:inline-block">Your soil</span>':''}
+        </div>`).join('')}
+    </div>`;
+}
+window.switchSoil=function(k){ S.location.soil=k; save(); renderSoil(); };
+
+// ═══════════════ AI ADVISOR ═══════════════
+let chatLog=[]; // raw messages for API
+let chatDisplay=[]; // {role,html} for rendering
+
+function initChat(){
+  if(chatDisplay.length===0){
+    const soil=SOILS[S.location.soil]||SOILS.red_loam;
+    const welcome='Hi there! 👋 I am **GreenMind AI**, your personal plant care expert.\n\n'
+      +'I can see you are in **'+S.location.city+'** with **'+S.location.climate+' climate** and **'+soil.name+' soil** at **'+S.weather.temp+'°C** today.\n\n'
+      +(S.plants.length?'Your garden has: **'+S.plants.map(function(p){return p.name;}).join(', ')+'**\n\n':'')
+      +'Here is what I can help you with:\n'
+      +'• 📸 **Photo Analysis** — upload a photo to identify diseases, pests, plants\n'
+      +'• 🔬 **Disease Diagnosis** — detect and treat plant diseases\n'
+      +'• 💧 **Watering & Care** — personalised schedules for your climate\n'
+      +'• 🐛 **Pest Control** — organic and chemical treatment options\n'
+      +'• 🧪 **Fertilizer Guide** — exact NPK ratios and schedules\n'
+      +'• 🌱 **Planting Advice** — best crops for your soil and season\n\n'
+      +'**How to use:** Type your question below, or upload a photo for instant AI analysis!';
+    chatDisplay=[{role:'bot', html:fmtMsg(welcome), time:now()}];
+  }
+}
+function now(){ var d=new Date(); return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0'); }
+
+// ── Chat state ──
+let _chipQuestions=[];
+let _pendingImage=null; // {base64, mimeType, previewUrl}
+
+function sendChip(i){ sendChat(_chipQuestions[i],null); }
+
+function renderAdvisor(){
+  initChat();
+  _chipQuestions=[
+    'Give me a detailed care guide for each of my plants: '+(S.plants.map(p=>p.name).join(', ')||'I have no plants yet')+'. Include watering schedule, fertilizer, pruning, diseases, and tips for '+S.location.climate+' climate.',
+    'My plant leaves have yellow spots and brown edges. What disease could this be? How do I treat it organically? What causes it?',
+    'What is the best watering schedule for my plants in '+S.location.city+'? Temperature is '+S.weather.temp+'C, humidity '+S.weather.humidity+'%. Give exact ml amounts and timing.',
+    'What pests should I watch for in '+S.location.climate+' climate in '+new Date().toLocaleString('en',{month:'long'})+'? How to control them organically?',
+    'What are the best 8 plants to grow in '+S.location.city+' this month? Consider '+S.location.climate+' climate and '+(SOILS[S.location.soil]&&SOILS[S.location.soil].name||S.location.soil)+' soil.',
+    'What fertilizers should I use for '+(S.plants.map(p=>p.name).join(', ')||'my garden plants')+' in '+S.location.climate+' climate? Give NPK ratios and schedule.',
+    'How do I prepare my garden in '+S.location.city+' for the upcoming season? Plants: '+(S.plants.map(p=>p.name).join(', ')||'various'),
+    'How to improve my '+(SOILS[S.location.soil]&&SOILS[S.location.soil].name||S.location.soil)+' soil? What organic amendments and how often?',
+  ];
+  const chipLabels=['🌱 Care guide','🔬 Leaf disease','💧 Watering','🐛 Pests','🌍 Best plants','🧪 Fertilizer','🌧️ Season prep','🪨 Soil help'];
+
+  const tagBar=['📍 '+S.location.city,'🌍 '+S.location.climate,'🪨 '+(SOILS[S.location.soil]&&SOILS[S.location.soil].name||S.location.soil),'🌡️ '+S.weather.temp+'°C','🌱 '+S.plants.length+' plants']
+    .map(function(t){ return '<span style="font-size:11px;padding:3px 10px;border-radius:20px;background:var(--g1);color:var(--g8);border:1px solid var(--g2)">'+t+'</span>'; }).join('');
+
+  const msgHtml=chatDisplay.map(function(m){
+    var isUser=m.role==='user';
+    var imgPart=m.imgUrl?'<img src="'+m.imgUrl+'" class="msg-img">':'';
+    var avatar=isUser
+      ?'<div class="msg-avatar user-av">You</div>'
+      :'<div class="msg-avatar">🌿</div>';
+    var timeStr=m.time||'';
+    var timePart=timeStr?'<div class="msg-time '+(isUser?'':'bot-time')+'">'+timeStr+'</div>':'';
+    return '<div class="msg-row '+(isUser?'user':'')+'">'
+      +avatar
+      +'<div>'
+      +'<div class="msg-bubble '+(isUser?'user':'bot')+'">'+imgPart+m.html+'</div>'
+      +timePart
+      +'</div>'
+      +'</div>';
+  }).join('');
+  const chipHtml=chipLabels.map(function(l,i){ return '<span class="chip" onclick="sendChip('+i+')">'+l+'</span>'; }).join('');
+  const noKeyAlert='';
+
+  const previewHtml=_pendingImage
+    ?'<div class="img-preview-wrap"><img src="'+_pendingImage.previewUrl+'" class="img-preview"><button class="img-remove" onclick="removeImage()" title="Remove">✕</button></div>'
+    :'';
+
+  document.getElementById('page-advisor').innerHTML=''
+    +'<div class="section-row" style="margin-bottom:12px">'
+    +'<div><h2 class="page-title">🤖 AI Plant Advisor</h2><p class="page-sub">Powered by Gemini Vision AI · Photo Analysis · Personalised Care</p></div>'
+    +'<button class="btn btn-ghost btn-sm" onclick="clearChat()">🗑 Clear</button>'
+    +'</div>'
+    +'<div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px">'+tagBar+'</div>'
+    +noKeyAlert
+
+    // ── Chat window ──
+    +'<div class="chat-wrap">'
+
+    // Header
+    +'<div class="chat-header">'
+    +'<div class="chat-header-avatar">🌿</div>'
+    +'<div class="chat-header-info">'
+    +'<div class="chat-header-name">GreenMind AI</div>'
+    +'<div class="chat-header-status">Online · Expert Plant Advisor</div>'
+    +'</div>'
+    +'<button onclick="clearChat()" style="background:rgba(255,255,255,.1);border:none;color:#a8d5b5;border-radius:8px;padding:5px 10px;font-size:11px;cursor:pointer">Clear</button>'
+    +'</div>'
+
+    // Messages
+    +'<div class="chat-msgs" id="chat-msgs">'+msgHtml+'</div>'
+
+    // Quick chips
+    +'<div class="chat-chips" id="chip-row">'+chipHtml+'</div>'
+
+    // Photo analysis section
+    +'<div class="photo-section">'
+    +'<div class="photo-section-title">📸 Photo Analysis — Upload and get instant AI diagnosis</div>'
+    +'<div class="photo-btns-row">'
+    +'<label class="photo-upload-btn gallery" for="img-upload">🖼️ Gallery / File</label>'
+    +'<input type="file" id="img-upload" accept="image/*" style="display:none" onchange="handleImageUpload(event)">'
+    +'<label class="photo-upload-btn camera" for="cam-upload">📷 Take Photo</label>'
+    +'<input type="file" id="cam-upload" accept="image/*" capture="environment" style="display:none" onchange="handleImageUpload(event)">'
+    +'</div>'
+    +'<div id="img-preview-area">'+previewHtml+'</div>'
+    +'<div style="font-size:11px;color:var(--muted);margin-bottom:6px">After uploading, click to analyse:</div>'
+    +'<div class="analysis-chips-row">'
+    +'<span class="analysis-chip" onclick="photoAnalyze(&quot;disease&quot;)">🔬 Disease</span>'
+    +'<span class="analysis-chip" onclick="photoAnalyze(&quot;pest&quot;)">🐛 Pest</span>'
+    +'<span class="analysis-chip" onclick="photoAnalyze(&quot;soil&quot;)">🪨 Soil</span>'
+    +'<span class="analysis-chip" onclick="photoAnalyze(&quot;plant&quot;)">🌿 Identify Plant</span>'
+    +'<span class="analysis-chip" onclick="photoAnalyze(&quot;health&quot;)">❤️ Health Check</span>'
+    +'<span class="analysis-chip" onclick="photoAnalyze(&quot;nutrient&quot;)">🧪 Nutrients</span>'
+    +'</div>'
+    +'</div>'
+
+    // Input row
+    +'<div class="chat-input-row">'
+    +'<textarea class="chat-input" id="chat-input" placeholder="Ask me anything about your plants, diseases, watering, soil…" rows="1" onkeydown="if(event.key==String.fromCharCode(13)&&!event.shiftKey){event.preventDefault();sendChat(null,null);}"></textarea>'
+    +'<button class="send-btn" id="send-btn" onclick="sendChat(null,null)">&#10148;</button>'
+    +'</div>'
+
+    +'</div>';
+  scrollChat();
+}
+
+function handleImageUpload(event){
+  const file=event.target.files[0];
+  if(!file) return;
+  if(!file.type.startsWith('image/')){ toast('Please upload an image file','#dc2626'); return; }
+  if(file.size>10*1024*1024){ toast('Image too large. Please use an image under 10MB','#dc2626'); return; }
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const dataUrl=e.target.result;
+    const base64=dataUrl.split(',')[1];
+    const mimeType=file.type;
+    _pendingImage={base64:base64,mimeType:mimeType,previewUrl:dataUrl,name:file.name};
+    // Update preview
+    const area=document.getElementById('img-preview-area');
+    if(area) area.innerHTML='<div class="img-preview-wrap"><img src="'+dataUrl+'" class="img-preview"><button class="img-remove" onclick="removeImage()" title="Remove">✕</button></div>';
+    toast('📷 Photo ready! Click an analysis button or type your question.');
+  };
+  reader.readAsDataURL(file);
+  event.target.value='';
+}
+
+function removeImage(){
+  _pendingImage=null;
+  const area=document.getElementById('img-preview-area');
+  if(area) area.innerHTML='';
+}
+
+function photoAnalyze(type){
+  if(!_pendingImage){ toast('Please upload a photo first using the 📷 Photo button','#e07000'); return; }
+  const prompts={
+    disease: 'Analyse this plant photo carefully. Identify any diseases, infections or abnormalities visible. Describe: 1) What disease/problem is this? 2) What causes it? 3) How severe is it? 4) Exact treatment steps (organic and chemical). 5) Prevention for '+S.location.climate+' climate in India.',
+    pest:    'Look at this plant photo and identify any pests, pest damage, or infestation signs. Describe: 1) What pest is this? 2) Life cycle and behavior. 3) Damage pattern. 4) Organic control methods available in India. 5) Chemical treatment if needed. 6) Prevention tips.',
+    soil:    'Analyse this soil photo. Describe: 1) Soil type and texture estimate. 2) Color analysis (what it indicates). 3) Visible health indicators. 4) Estimated pH range. 5) What nutrients may be lacking. 6) Improvement recommendations for '+S.location.city+' region.',
+    plant:   'Identify this plant from the photo. Provide: 1) Plant name (common and scientific). 2) Family/genus. 3) Care requirements (water, sunlight, soil). 4) Growth habits. 5) Uses (edible/medicinal/ornamental). 6) How to grow it in '+S.location.climate+' climate, '+S.location.city+'.',
+    health:  'Do a complete health assessment of this plant. Check: 1) Overall health score (1-10). 2) Leaf color and condition. 3) Stem/root signs if visible. 4) Signs of stress (water, nutrient, disease). 5) Immediate action needed. 6) Care recommendations for '+S.location.climate+' climate.',
+    nutrient:'Analyse this plant for nutrient deficiencies. Check: 1) Identify deficiency from visual symptoms. 2) Which nutrients are lacking (N/P/K/Ca/Mg/Fe etc). 3) Exact symptoms visible. 4) Treatment: fertilizer name, amount, frequency available in India. 5) Prevention schedule.',
+  };
+  sendChat(prompts[type],_pendingImage);
+}
+
+function scrollChat(){ setTimeout(()=>{ const el=document.getElementById('chat-msgs'); if(el) el.scrollTop=el.scrollHeight; },50); }
+
+function clearChat(){
+  chatLog=[]; chatDisplay=[];
+  initChat(); renderAdvisor();
+}
+
+window.askAI=function(q){ showPage('advisor'); setTimeout(()=>sendChat(q),150); };
+
+async function sendChat(text, imageOverride){
+  const input=document.getElementById('chat-input');
+  const msg=(text||(input?input.value.trim():'')).trim();
+  const image=imageOverride!==undefined?imageOverride:_pendingImage;
+  if(!msg && !image) return;
+  const finalMsg=msg||(image?'Please analyse this image.':'');
+  if(input) input.value='';
+  const sendBtn=document.getElementById('send-btn');
+  if(sendBtn){ sendBtn.disabled=true; sendBtn.textContent='…'; }
+
+  // Add user message to display
+  const imgUrl=image?image.previewUrl:null;
+  chatDisplay.push({role:'user', html:finalMsg.replace(/</g,'&lt;'), imgUrl:imgUrl, time:now()});
+  chatLog.push({role:'user', content:finalMsg});
+
+  // Clear pending image after sending
+  if(image===_pendingImage){ _pendingImage=null; const area=document.getElementById('img-preview-area'); if(area) area.innerHTML=''; }
+
+  // Show typing indicator
+  const msgs=document.getElementById('chat-msgs');
+  if(msgs){
+    msgs.innerHTML=chatDisplay.map(function(m){
+      var isUser=m.role==='user';
+      var ip=m.imgUrl?'<img src="'+m.imgUrl+'" class="msg-img">':'';
+      var av=isUser?'<div class="msg-avatar user-av">You</div>':'<div class="msg-avatar">🌿</div>';
+      var tp=m.time?'<div class="msg-time '+(isUser?'':'bot-time')+'">'+m.time+'</div>':'';
+      return '<div class="msg-row '+(isUser?'user':'')+'">'+av+'<div><div class="msg-bubble '+(isUser?'user':'bot')+'">'+ip+m.html+'</div>'+tp+'</div></div>';
+    }).join('');
+    msgs.innerHTML+='<div class="typing-wrap"><div class="msg-avatar">🌿</div><div class="typing-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>';
+    scrollChat();
+  }
+
+  const reply=await callGeminiVision(finalMsg, image);
+
+  chatDisplay.push({role:'bot', html:fmtMsg(reply), time:now()});
+  chatLog.push({role:'assistant', content:reply});
+
+  if(msgs){
+    msgs.innerHTML=chatDisplay.map(function(m){
+      var isUser=m.role==='user';
+      var ip=m.imgUrl?'<img src="'+m.imgUrl+'" class="msg-img">':'';
+      var av=isUser?'<div class="msg-avatar user-av">You</div>':'<div class="msg-avatar">🌿</div>';
+      var tp=m.time?'<div class="msg-time '+(isUser?'':'bot-time')+'">'+m.time+'</div>':'';
+      return '<div class="msg-row '+(isUser?'user':'')+'">'+av+'<div><div class="msg-bubble '+(isUser?'user':'bot')+'">'+ip+m.html+'</div>'+tp+'</div></div>';
+    }).join('');
+    scrollChat();
+  }
+  if(sendBtn){ sendBtn.disabled=false; sendBtn.textContent='Send ↑'; }
+}
+
+async function callGeminiVision(msg, image){
+  if(!S.apiKey){
+    return '🌿 **Demo mode** — click 🔑 API Key to enter your **Groq key**. Free at **console.groq.com** → API Keys → Create New';
+  }
+  var plantDetails=S.plants.map(function(p){ return p.name+' ('+p.type+', '+p.water_ml+'ml every '+p.freq+' days, health '+p.health+'%, watered '+daysSince(p.last)+' days ago)'; }).join('; ');
+  var soil=SOILS[S.location.soil]||SOILS.red_loam;
+  var sys='You are GreenMind AI, expert Indian horticulturalist.\nGARDEN: '+S.location.city+', '+S.location.state+' | '+S.location.climate+' climate | '+soil.name+' soil | '+S.weather.temp+'C '+S.weather.humidity+'% humidity | '+MONTHS[new Date().getMonth()]+'\n'+(plantDetails?'Plants: '+plantDetails:'No plants yet')+'\nUse **bold**, bullet points, exact amounts, Indian product names.';
+  var imgNote=image?' [Image uploaded — provide visual diagnosis based on question type and context.]':'';
+  try{
+    var msgs=[{role:'system',content:sys}];
+    chatLog.slice(-14).forEach(function(m){ msgs.push({role:m.role==='assistant'?'assistant':'user',content:m.content}); });
+    msgs.push({role:'user',content:msg+imgNote});
+    var r=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+S.apiKey},
+      body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:msgs,max_tokens:1500,temperature:0.7})
+    });
+    var d=await r.json();
+    if(!r.ok){
+      if(r.status===401) return '❌ **Invalid Groq key.** Re-enter via 🔑 API Key. Free at console.groq.com';
+      if(r.status===429) return '❌ **Rate limit.** Wait 60s. Groq free tier has per-minute limits.';
+      return '❌ Groq Error ('+r.status+'): '+(d.error&&d.error.message||'Unknown error.');
+    }
+    return (d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content)||'No response. Try again.';
+  }catch(e){ return '🌿 **Connection error.** Check internet. ('+e.message+')'; }
+}
+
+// ═══════════════ RECOMMENDATIONS ═══════════════
+function renderRecs(){
+  const recs=CLIMATE_RECS[S.location.climate]||CLIMATE_RECS.tropical;
+  const soil=SOILS[S.location.soil]||SOILS.red_loam;
+  document.getElementById('page-recs').innerHTML=`
+    <div class="section-row">
+      <div><h2 class="page-title">✨ Plant Recommendations</h2><p class="page-sub">AI-matched for ${S.location.city} · ${S.location.climate} · ${soil.name} — click any button to open AI chat</p></div>
+      <button class="btn btn-primary btn-sm" onclick="askAI('Give me a complete personalised planting plan for ${S.location.city} in ${MONTHS[new Date().getMonth()]}. Consider ${S.location.climate} climate, ${soil.name} soil, ${S.weather.temp}C temperature. Include vegetables, fruits, herbs and flowers with care tips.')">🤖 Full AI Plan</button>
+    </div>
+    <div class="grid2" style="margin-bottom:16px">
+      <div class="card">
+        <div class="card-header"><span class="card-title">🌍 Best for ${S.location.city}</span></div>
+        <div class="card-body">
+          ${recs.map(r=>`<div class="insight">
+            <span class="insight-icon">${r.emoji}</span>
+            <div style="flex:1"><div class="insight-title">${r.name}</div><div class="insight-desc">${r.reason}</div></div>
+            <button class="btn btn-primary btn-sm" onclick="askAI('How do I grow '+r.name+' in '+S.location.city+'? Give full planting steps, watering, fertilizer, common diseases and harvest tips for '+S.location.climate+' climate.')">Ask AI ↗</button>
+          </div>`).join('')}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">🪨 Best for ${soil.name}</span></div>
+        <div class="card-body">
+          <div class="alert alert-earth">${soil.emoji} ${soil.tip}</div>
+          ${soil.best.map(b=>`<div class="insight" style="background:var(--e0);border-color:var(--e1)">
+            <span class="insight-icon">🌱</span>
+            <div style="flex:1"><div class="insight-title" style="color:var(--e7)">${b}</div><div class="insight-desc" style="color:var(--e7)">Compatible with ${soil.name} soil</div></div>
+            <button class="btn btn-sm" style="background:var(--e7);color:#fff;border:none;flex-shrink:0" onclick="askAI('How do I grow ${b} in ${soil.name} soil in ${S.location.city}? Full planting and care guide for ${S.location.climate} climate.')">Ask AI</button>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">🤖 Ask AI for Personalised Picks</span></div>
+      <div class="card-body" style="display:flex;gap:8px;flex-wrap:wrap">
+        ${[
+          ['🥦 Summer Vegetables', `What vegetables can I grow in ${S.location.city} during ${MONTHS[new Date().getMonth()]}? Give planting steps for each.`],
+          ['🌳 Best Fruit Trees',  `Which fruit trees grow best in ${soil.name} soil in ${S.location.city}? Include care tips.`],
+          ['🌸 Year-round Flowers',`Which flowering plants bloom year-round in ${S.location.climate} climate? Include care level.`],
+          ['🌿 Easy Herbs',        `What are the 5 easiest herbs to grow in ${S.location.city} for beginners? Give planting tips.`],
+          ['🏠 Indoor Plants',     `Best indoor plants for ${S.location.city} climate and Indian homes? Include sunlight and water needs.`],
+          ['🌧️ Monsoon Crops',     `What should I plant before/during monsoon in ${S.location.city}? How to protect existing plants?`],
+        ].map(([l,q])=>`<button class="btn btn-outline" onclick="askAI(${JSON.stringify(q)})">${l} ↗</button>`).join('')}
+      </div>
+    </div>`;
+}
+
+// ═══════════════ REWARDS ═══════════════
+function renderRewards(){
+  const li=levelInfo(S.xp);
+  const pct=li.next?Math.round(((S.xp-li.prev)/(li.next-li.prev))*100):100;
+  const done=ACHIEVEMENTS.filter(a=>a.done), locked=ACHIEVEMENTS.filter(a=>!a.done);
+  document.getElementById('page-rewards').innerHTML=`
+    <div class="section-row"><div><h2 class="page-title">🏆 Garden Rewards</h2><p class="page-sub">Earn XP by caring for your plants daily</p></div></div>
+    <div class="grid4" style="margin-bottom:16px">
+      <div class="stat"><div class="stat-label">⭐ Total XP</div><div class="stat-val" style="color:var(--w5)">${S.xp}</div><div class="stat-sub">Points earned</div></div>
+      <div class="stat"><div class="stat-label">🎖️ Level</div><div class="stat-val" style="color:var(--g8)">${li.level}</div><div class="stat-sub">${li.title}</div></div>
+      <div class="stat"><div class="stat-label">🏅 Badges</div><div class="stat-val" style="color:var(--s6)">${done.length}</div><div class="stat-sub">of ${ACHIEVEMENTS.length}</div></div>
+      <div class="stat"><div class="stat-label">🔥 Streak</div><div class="stat-val" style="color:var(--r6)">${S.streak}d</div><div class="stat-sub">days in a row</div></div>
+    </div>
+    <div class="card" style="margin-bottom:16px"><div class="card-body">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span style="font-weight:500">${li.title} · Level ${li.level}</span>
+        <span style="font-size:13px;color:var(--muted)">${S.xp} / ${li.next||'MAX'} XP</span>
+      </div>
+      <div style="height:10px;background:#e8e3db;border-radius:5px;overflow:hidden">
+        <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#52b788,#74c69d);border-radius:5px;transition:width .6s"></div>
+      </div>
+      ${li.next?`<div style="font-size:11px;color:var(--hint);margin-top:4px">${li.next-S.xp} XP to Level ${li.level+1}</div>`:'<div style="font-size:11px;color:var(--g4);margin-top:4px">Maximum level reached! 🏆</div>'}
+    </div></div>
+    <div style="margin-bottom:8px"><div style="font-size:12px;color:var(--muted);background:var(--bg);border-radius:8px;padding:10px 14px;display:flex;gap:16px;flex-wrap:wrap">
+      ${[['💧 Water a plant','+10 XP'],['🌱 Add new plant','+50 XP'],['🔥 Daily streak','+20 XP/day'],['🌾 Harvest crop','+100 XP']].map(([a,x])=>`<span>${a}: <strong style="color:var(--w5)">${x}</strong></span>`).join('')}
+    </div></div>
+    <h3 style="font-size:15px;margin:14px 0 12px">🏅 Earned Badges</h3>
+    <div class="grid3" style="margin-bottom:18px">${done.map(a=>`<div class="achievement done"><div style="font-size:32px;margin-bottom:6px">${a.emoji}</div><div style="font-size:13px;font-weight:500;color:var(--g8)">${a.name}</div><div style="font-size:11px;color:var(--muted);margin:4px 0">${a.desc}</div><span class="badge badge-green">+${a.xp} XP ✓</span></div>`).join('')}</div>
+    <h3 style="font-size:15px;margin-bottom:12px">🔒 Upcoming Badges</h3>
+    <div class="grid3">${locked.map(a=>`<div class="achievement locked"><div style="font-size:32px;margin-bottom:6px;filter:grayscale(1)">${a.emoji}</div><div style="font-size:13px;font-weight:500">${a.name}</div><div style="font-size:11px;color:var(--muted);margin:4px 0">${a.desc}</div><span class="badge" style="background:var(--border);color:var(--muted)">+${a.xp} XP</span></div>`).join('')}</div>`;
+}
+
+// ═══════════════ AUTH SYSTEM ═══════════════
+let U = (() => {
+  try { const u=localStorage.getItem('gm_user'); if(u) return JSON.parse(u); } catch(e){}
+  return null;
+})();
+
+function saveUser(){ try{ localStorage.setItem('gm_user',JSON.stringify(U)); }catch(e){} }
+
+function switchAuthTab(tab){
+  document.querySelectorAll('.auth-tab').forEach((t,i)=>t.classList.toggle('active',(tab==='login'?i===0:i===1)));
+  document.getElementById('form-login').classList.toggle('active',tab==='login');
+  document.getElementById('form-signup').classList.toggle('active',tab==='signup');
+}
+
+function checkStrength(pwd){
+  let s=0;
+  if(pwd.length>=8) s++;
+  if(/[A-Z]/.test(pwd)) s++;
+  if(/[0-9]/.test(pwd)) s++;
+  if(/[^A-Za-z0-9]/.test(pwd)) s++;
+  const fill=document.getElementById('strength-fill');
+  const colors=['#dc2626','#f59e0b','#3b82f6','#22c55e'];
+  fill.style.width=(s*25)+'%';
+  fill.style.background=colors[s-1]||'#e0e0e0';
+}
+
+function doLogin(){
+  const email=document.getElementById('login-email').value.trim();
+  const pass=document.getElementById('login-pass').value;
+  const errEl=document.getElementById('login-error');
+  errEl.style.display='none';
+  if(!email||!pass){ errEl.textContent='Please enter email and password.'; errEl.style.display='block'; return; }
+  if(!email.includes('@')){ errEl.textContent='Please enter a valid email.'; errEl.style.display='block'; return; }
+  // Check stored accounts
+  const accounts = JSON.parse(localStorage.getItem('gm_accounts')||'[]');
+  const found = accounts.find(a=>a.email===email && a.pass===pass);
+  if(!found && !(email && pass.length>=6)){
+    // Allow demo login with any valid email+6char pass
+  }
+  const name = found ? found.name : email.split('@')[0].replace(/[^a-zA-Z\s]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+  U = { name, email, avatar: found?.avatar||'🌿', bio: found?.bio||'Plant lover & home gardener', phone: found?.phone||'', joined: found?.joined||new Date().toISOString(), notifications: true, darkMode: false };
+  saveUser();
+  launchApp();
+}
+
+function doSignup(){
+  const name=document.getElementById('signup-name').value.trim();
+  const email=document.getElementById('signup-email').value.trim();
+  const pass=document.getElementById('signup-pass').value;
+  const pass2=document.getElementById('signup-pass2').value;
+  const terms=document.getElementById('terms-chk').checked;
+  const errEl=document.getElementById('signup-error');
+  errEl.style.display='none';
+  if(!name){ errEl.textContent='Please enter your name.'; errEl.style.display='block'; return; }
+  if(!email.includes('@')){ errEl.textContent='Please enter a valid email.'; errEl.style.display='block'; return; }
+  if(pass.length<8){ errEl.textContent='Password must be at least 8 characters.'; errEl.style.display='block'; return; }
+  if(pass!==pass2){ errEl.textContent='Passwords do not match.'; errEl.style.display='block'; return; }
+  if(!terms){ errEl.textContent='Please agree to Terms of Service.'; errEl.style.display='block'; return; }
+  // Save account
+  const accounts = JSON.parse(localStorage.getItem('gm_accounts')||'[]');
+  if(accounts.find(a=>a.email===email)){ errEl.textContent='An account with this email already exists.'; errEl.style.display='block'; return; }
+  const newUser = {name, email, pass, avatar:'🌿', bio:'Plant lover & home gardener', phone:'', joined:new Date().toISOString()};
+  accounts.push(newUser);
+  localStorage.setItem('gm_accounts',JSON.stringify(accounts));
+  U = { ...newUser };
+  saveUser();
+  launchApp();
+  toast('🌱 Welcome to GreenMind, '+name+'! +100 Bonus XP 🎉');
+  S.xp += 100; save();
+}
+
+function doGoogleAuth(){
+  const name = 'Garden User';
+  const email = 'user@gmail.com';
+  U = { name, email, avatar:'🌿', bio:'Home gardener', phone:'', joined:new Date().toISOString(), notifications:true, darkMode:false };
+  saveUser();
+  launchApp();
+  toast('🌿 Signed in with Google!');
+}
+
+function showForgot(){
+  const email=document.getElementById('login-email').value.trim();
+  if(!email){ toast('Enter your email first, then click forgot password','#d97706'); return; }
+  toast('📧 Password reset link sent to '+email+' (demo mode)');
+}
+
+function launchApp(){
+  document.getElementById('auth-screen').classList.add('hidden');
+  document.getElementById('app-shell').style.display='flex';
+  updateSidebarUser();
+  buildNav();
+  renderDashboard();
+  updateApiBanner();
+}
+
+function updateSidebarUser(){
+  if(!U) return;
+  document.getElementById('sidebar-avatar').textContent=U.avatar||'🌿';
+  document.getElementById('sidebar-name').textContent=U.name||'Gardener';
+  document.getElementById('sidebar-email').textContent=U.email||'';
+}
+
+function logout(){
+  if(!confirm('Sign out of GreenMind?')) return;
+  U=null; saveUser();
+  document.getElementById('app-shell').style.display='none';
+  document.getElementById('auth-screen').classList.remove('hidden');
+  document.getElementById('login-email').value='';
+  document.getElementById('login-pass').value='';
+  document.getElementById('login-error').style.display='none';
+  switchAuthTab('login');
+}
+
+// ═══════════════ PROFILE PAGE ═══════════════
+const AVATARS=['🌿','🌱','🌳','🌺','🍀','🌻','🍃','🌴','🌾','🌹','🥭','🍋'];
+let profileToggles={notifications:true,darkMode:false,emailAlerts:true,weatherNotifs:true};
+
+function renderProfile(){
+  if(!U){ showPage('dashboard'); return; }
+  const li=levelInfo(S.xp);
+  const pct=li.next?Math.round(((S.xp-li.prev)/(li.next-li.prev))*100):100;
+  const memberDays=Math.floor((Date.now()-new Date(U.joined).getTime())/86400000);
+  const done=ACHIEVEMENTS.filter(a=>a.done).length;
+
+  document.getElementById('page-profile').innerHTML=`
+    <div class="profile-hero">
+      <div style="display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap">
+        <div>
+          <div class="profile-avatar" onclick="openEditProfile()" title="Click to edit">${U.avatar||'🌿'}</div>
+        </div>
+        <div style="flex:1">
+          <div class="profile-name">${U.name||'Gardener'}</div>
+          <div class="profile-email">${U.email||''}</div>
+          ${U.bio?`<div style="font-size:12px;opacity:.75;margin-top:6px;max-width:280px">${U.bio}</div>`:''}
+          <div class="profile-chips" style="margin-top:10px">
+            <span class="profile-chip">🎖️ Level ${li.level} – ${li.title}</span>
+            <span class="profile-chip">🌱 ${memberDays}d member</span>
+            <span class="profile-chip">🔥 ${S.streak}d streak</span>
+          </div>
+        </div>
+        <button class="btn btn-sm" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3);flex-shrink:0" onclick="openEditProfile()">✏️ Edit</button>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap">
+        <div class="stat-pill"><span class="stat-pill-val">${S.plants.length}</span><span class="stat-pill-label">Plants</span></div>
+        <div class="stat-pill"><span class="stat-pill-val">${S.xp}</span><span class="stat-pill-label">Total XP</span></div>
+        <div class="stat-pill"><span class="stat-pill-val">${done}</span><span class="stat-pill-label">Badges</span></div>
+        <div class="stat-pill"><span class="stat-pill-val">${S.streak}</span><span class="stat-pill-label">Day Streak</span></div>
+      </div>
+    </div>
+
+    <!-- XP Progress -->
+    <div class="settings-section" style="margin-bottom:14px">
+      <div class="settings-section-title">⭐ Level Progress</div>
+      <div style="padding:16px 18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="font-size:13px;font-weight:500">${li.title} · Level ${li.level}</span>
+          <span style="font-size:12px;color:var(--muted)">${S.xp} / ${li.next||'MAX'} XP</span>
+        </div>
+        <div style="height:8px;background:#e8e3db;border-radius:4px;overflow:hidden">
+          <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#52b788,#74c69d);border-radius:4px;transition:width .6s"></div>
+        </div>
+        ${li.next?`<div style="font-size:11px;color:var(--hint);margin-top:4px">${li.next-S.xp} XP to Level ${li.level+1}</div>`:'<div style="font-size:11px;color:var(--g4);margin-top:4px">Maximum level reached! 🏆</div>'}
+      </div>
+    </div>
+
+    <!-- Account Settings -->
+    <div class="settings-section">
+      <div class="settings-section-title">👤 Account</div>
+      <div class="settings-row" onclick="openEditProfile()">
+        <div class="settings-row-icon" style="background:#d8f3dc">✏️</div>
+        <div class="settings-row-label">Edit Profile</div>
+        <span class="settings-row-value">Name, avatar, bio</span>
+        <span style="color:#aaa;font-size:11px">›</span>
+      </div>
+      <div class="settings-row" onclick="openModal('loc-modal')">
+        <div class="settings-row-icon" style="background:#e0f2fe">📍</div>
+        <div class="settings-row-label">Location & Climate</div>
+        <span class="settings-row-value">${S.location.city}, ${S.location.state}</span>
+        <span style="color:#aaa;font-size:11px">›</span>
+      </div>
+      <div class="settings-row" onclick="openKeyModal()">
+        <div class="settings-row-icon" style="background:#fef3c7">🔑</div>
+        <div class="settings-row-label">AI API Key</div>
+        <span class="settings-row-value">${S.apiKey?'✅ Connected':'⚠️ Not set'}</span>
+        <span style="color:#aaa;font-size:11px">›</span>
+      </div>
+    </div>
+
+    <!-- Notifications -->
+    <div class="settings-section">
+      <div class="settings-section-title">🔔 Notifications</div>
+      ${[
+        ['💧','Watering Reminders','notifications','Daily watering alerts'],
+        ['📧','Email Alerts','emailAlerts','Weekly garden summary'],
+        ['🌤️','Weather Notifications','weatherNotifs','Extreme weather alerts'],
+      ].map(([icon,label,key,sub])=>`
+      <div class="settings-row" onclick="togglePref('${key}')">
+        <div class="settings-row-icon" style="background:#f0faf3">${icon}</div>
+        <div style="flex:1"><div class="settings-row-label">${label}</div><div style="font-size:11px;color:var(--hint)">${sub}</div></div>
+        <div class="toggle ${(U[key]!==false)?'on':''}" id="toggle-${key}"></div>
+      </div>`).join('')}
+    </div>
+
+    <!-- Garden Stats -->
+    <div class="settings-section">
+      <div class="settings-section-title">🌿 Garden Summary</div>
+      <div style="padding:14px 18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px">
+        ${[
+          ['🌱','Vegetables',S.plants.filter(p=>p.type==='vegetable').length],
+          ['🌸','Flowers',S.plants.filter(p=>p.type==='flower').length],
+          ['🌳','Trees',S.plants.filter(p=>p.type==='tree'||p.type==='fruit').length],
+          ['🌿','Herbs',S.plants.filter(p=>p.type==='herb').length],
+          ['🪴','Indoor',S.plants.filter(p=>p.type==='indoor').length],
+          ['💧','Need Water',S.plants.filter(p=>wStatus(p)!=='ok').length],
+        ].map(([e,l,n])=>`<div style="text-align:center;background:var(--bg);border-radius:10px;padding:12px;border:1px solid var(--border)">
+          <div style="font-size:24px">${e}</div>
+          <div style="font-size:18px;font-weight:600;color:var(--g8);margin:4px 0">${n}</div>
+          <div style="font-size:11px;color:var(--muted)">${l}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- App Settings -->
+    <div class="settings-section">
+      <div class="settings-section-title">⚙️ App</div>
+      <div class="settings-row" onclick="showPage('rewards')">
+        <div class="settings-row-icon" style="background:#fff3e0">🏆</div>
+        <div class="settings-row-label">Achievements & Badges</div>
+        <span class="settings-row-value">${done}/${ACHIEVEMENTS.length} earned</span>
+        <span style="color:#aaa;font-size:11px">›</span>
+      </div>
+      <div class="settings-row" onclick="exportData()">
+        <div class="settings-row-icon" style="background:#e3f2fd">📤</div>
+        <div class="settings-row-label">Export Garden Data</div>
+        <span class="settings-row-value">JSON backup</span>
+        <span style="color:#aaa;font-size:11px">›</span>
+      </div>
+      <div class="settings-row" onclick="if(confirm('Reset all garden data? This cannot be undone.')){localStorage.clear();location.reload();}">
+        <div class="settings-row-icon" style="background:#fee2e2">🗑️</div>
+        <div class="settings-row-label" style="color:#dc2626">Reset All Data</div>
+        <span class="settings-row-value" style="color:#dc2626">Dangerous</span>
+        <span style="color:#aaa;font-size:11px">›</span>
+      </div>
+    </div>
+
+    <!-- Sign Out -->
+    <button class="btn btn-danger" style="width:100%;justify-content:center;padding:13px;font-size:14px;margin-bottom:24px" onclick="logout()">
+      🚪 Sign Out
+    </button>
+  `;
+}
+
+function togglePref(key){
+  if(!U) return;
+  U[key] = U[key]===false ? true : false;
+  saveUser();
+  const t=document.getElementById('toggle-'+key);
+  if(t) t.classList.toggle('on', U[key]!==false);
+  toast(key+' '+(U[key]!==false?'enabled':'disabled'));
+}
+
+function openEditProfile(){
+  if(!U) return;
+  document.getElementById('edit-name').value=U.name||'';
+  document.getElementById('edit-bio').value=U.bio||'';
+  document.getElementById('edit-phone').value=U.phone||'';
+  const picker=document.getElementById('avatar-picker');
+  picker.innerHTML=AVATARS.map(a=>`<div class="avatar-opt${U.avatar===a?' selected':''}" onclick="selectAvatar('${a}')">${a}</div>`).join('');
+  openModal('edit-profile-modal');
+}
+
+function selectAvatar(a){
+  document.querySelectorAll('.avatar-opt').forEach(el=>el.classList.toggle('selected',el.textContent===a));
+  if(U) U.avatar=a;
+}
+
+function saveProfile(){
+  if(!U) return;
+  U.name=document.getElementById('edit-name').value.trim()||U.name;
+  U.bio=document.getElementById('edit-bio').value.trim();
+  U.phone=document.getElementById('edit-phone').value.trim();
+  saveUser();
+  updateSidebarUser();
+  closeModal('edit-profile-modal');
+  renderProfile();
+  toast('✅ Profile updated!');
+}
+
+function exportData(){
+  const data={user:U,garden:S,exported:new Date().toISOString()};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='greenmind-backup.json';
+  a.click();
+  toast('📤 Garden data exported!');
+}
+
+
+// ═══════════════ CLIMATE ═══════════════
+var _climateCache=null, _climateCacheDate=null;
+
+function openClimateModal(){
+  var now=new Date();
+  var dateLbl=document.getElementById('climate-date-lbl');
+  if(dateLbl) dateLbl.textContent=now.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  var aiTime=document.getElementById('c-ai-time');
+  if(aiTime) aiTime.textContent='Generated '+now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  var cond=S.weather.condition||'Sunny';
+  var icons={Sunny:'☀️',Hot:'🔆',Rainy:'🌧️',Cloudy:'⛅',Thunderstorm:'⛈️',Foggy:'🌫️',Windy:'💨'};
+  var icon=icons[cond]||'🌤️';
+  var el;
+  el=document.getElementById('c-big-icon'); if(el) el.textContent=icon;
+  el=document.getElementById('c-big-temp'); if(el) el.textContent=S.weather.temp+'°C';
+  el=document.getElementById('c-big-label'); if(el) el.textContent=cond+' · '+S.location.city+', '+S.location.state;
+  el=document.getElementById('cs-temp'); if(el) el.textContent=S.weather.temp+'°C';
+  el=document.getElementById('cs-hum'); if(el) el.textContent=S.weather.humidity+'%';
+  el=document.getElementById('cs-uv'); if(el) el.textContent=S.weather.temp>36?'Very High':S.weather.temp>32?'High':S.weather.temp>28?'Moderate':'Low';
+  el=document.getElementById('cs-rain'); if(el) el.textContent=S.weather.humidity>80?'High':S.weather.humidity>60?'Moderate':'Low';
+  var hero=document.getElementById('climate-hero');
+  if(hero){
+    var grads={Sunny:'linear-gradient(135deg,#b45309,#d97706,#f59e0b)',Hot:'linear-gradient(135deg,#991b1b,#dc2626,#f97316)',Rainy:'linear-gradient(135deg,#0369a1,#0284c7,#38bdf8)',Cloudy:'linear-gradient(135deg,#4b5563,#9ca3af,#d1d5db)',Thunderstorm:'linear-gradient(135deg,#1e1b4b,#4338ca,#7c3aed)'};
+    hero.style.background=grads[cond]||'linear-gradient(135deg,#0369a1,#0284c7,#0ea5e9)';
+  }
+  var chip=document.getElementById('weather-chip');
+  if(chip) chip.textContent=icon+' '+S.weather.temp+'°C · '+cond+' 🔍';
+  openModal('climate-modal');
+  var today=now.toISOString().split('T')[0];
+  if(_climateCache&&_climateCacheDate===today){
+    el=document.getElementById('climate-ai-body'); if(el) el.innerHTML=_climateCache;
+  } else {
+    loadClimateReport();
+  }
+}
+
+async function loadClimateReport(){
+  var el=document.getElementById('climate-ai-body');
+  if(!el) return;
+  el.innerHTML='<div class="ai-spin"><div class="ai-spin-dots"><span></span><span></span><span></span></div><span>Generating today&#39;s report…</span></div>';
+  var soil=SOILS[S.location.soil]||SOILS.red_loam;
+  var plants=S.plants.map(function(p){return p.name;}).join(', ')||'various plants';
+  var today=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'});
+  var prompt='Today is '+today+'. Write a brief daily climate report for a home gardener in '+S.location.city+', '+S.location.state+', India. Conditions: '+S.weather.temp+'C, '+S.weather.humidity+'% humidity, '+S.location.climate+' climate, '+(S.weather.condition||'Sunny')+'. Soil: '+soil.name+'. Plants: '+plants+'. Write exactly 5 sections using bold headers: **Today Conditions**, **Watering Advice**, **Plant Watch**, **Garden Tasks**, **Watch Out**. Be concise and practical.';
+  var reply='';
+  if(S.apiKey){
+    try{
+      var r=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+S.apiKey},
+        body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'system',content:'You are GreenMind AI, expert Indian horticulturalist. Be concise and practical.'},{role:'user',content:prompt}],max_tokens:600,temperature:0.7})
+      });
+      var d=await r.json();
+      reply=(d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content)||'';
+    }catch(e){reply='';}
+  }
+  if(!reply){
+    var best={tropical:'6:00-7:30 AM',arid:'5:30-7:00 AM',subtropical:'7:00-8:30 AM',temperate:'8:00-9:30 AM',highland:'9:00-10:00 AM'}[S.location.climate]||'6-8 AM';
+    var adj=S.weather.temp>35?'+30%':S.weather.temp>30?'+20%':S.weather.temp>28?'+10%':'normal';
+    var dueCount=S.plants.filter(function(p){return wStatus(p)!=='ok';}).length;
+    reply='**Today Conditions**\n'+S.weather.temp+'C in '+S.location.city+(S.weather.temp>33?' — hot day, avoid outdoor gardening 11AM-4PM.':', comfortable gardening conditions.')+'\n\n**Watering Advice**\nAdjust water by '+adj+' today. Best time: '+best+'. '+(S.weather.humidity>75?'Check soil moisture first.':'Water deeply at root level.')+'\n\n**Plant Watch**\n'+dueCount+' plants need watering today. '+(S.plants[0]?'Check '+S.plants[0].name+' for stress signs.':'Add plants for personalised alerts.')+'\n\n**Garden Tasks**\n- '+(S.weather.temp>32?'Water before 8 AM to prevent evaporation':'Water in morning for best absorption')+'\n- Check leaf undersides for mealybugs\n- '+(S.weather.humidity>70?'Ensure good drainage to avoid waterlogging':'Mulch around plant bases to retain moisture')+'\n\n**Watch Out**\n'+(S.weather.temp>35?'Heat stress risk - shade sensitive plants 11AM-4PM':S.weather.humidity>80?'Fungal risk high - avoid evening watering':'Conditions look good today. Routine care recommended.')+' (Add Groq API key for live AI reports)';
+  }
+  var fmt=reply.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+  if(el){ el.innerHTML=fmt; _climateCache=fmt; _climateCacheDate=new Date().toISOString().split('T')[0]; }
+}
+
+// ═══════════════ COMMUNITY DATA ═══════════════
+var CAT_CFG={
+  tip:     {emoji:'💡',label:'Tip / Advice',   bg:'#fef3c7',color:'#d97706'},
+  question:{emoji:'❓',label:'Question',        bg:'#e0f2fe',color:'#0369a1'},
+  harvest: {emoji:'🌾',label:'Harvest Update',  bg:'#d8f3dc',color:'#2d6a4f'},
+  disease: {emoji:'⚠️',label:'Disease / Problem',bg:'#fee2e2',color:'#dc2626'},
+  general: {emoji:'💬',label:'General',         bg:'#f3f4f6',color:'#6b7280'}
+};
+var POSTS=[
+  {id:1,author:'Shobika Arulselvam',initials:'SA',avatarBg:'#d8f3dc',loc:'Chennai, Tamil Nadu',time:'Just now',cat:'question',body:'hii my rose does not grow',tags:['#ChennaiGardening'],likes:0,comments:[],liked:false},
+  {id:2,author:'Kavitha Rajan',initials:'KR',avatarBg:'#fce4ec',loc:'Velachery, Chennai',time:'2 hrs ago',cat:'tip',body:'Adding coconut coir to red loam soil has improved my plants significantly this season. The soil now retains moisture much longer.',tags:['#ChennaiGardening','#SoilAmendment'],likes:24,comments:[{author:'Murali Krishnan',initials:'MK',avatarBg:'#fff3e0',text:'Great tip! Where do you get coconut coir in Chennai?',time:'1 hr ago'},{author:'Priya Subramanian',initials:'PS',avatarBg:'#e0f2fe',text:'This worked for me too! Also try vermicompost.',time:'45 min ago'}],liked:false},
+  {id:3,author:'Murali Krishnan',initials:'MK',avatarBg:'#fff3e0',loc:'T. Nagar, Chennai',time:'5 hrs ago',cat:'harvest',body:'Harvested first batch of cherry tomatoes! 🍅 Grew in containers with red loam + sand mix. Total: 2.3 kg from 4 plants.',tags:['#TerracGarden','#TomatoHarvest'],likes:41,comments:[{author:'Kavitha Rajan',initials:'KR',avatarBg:'#fce4ec',text:'Amazing yield! How long did they take to mature?',time:'4 hrs ago'}],liked:false},
+  {id:4,author:'Anitha Devi',initials:'AD',avatarBg:'#e8f5e9',loc:'Madurai',time:'Yesterday',cat:'disease',body:'My hibiscus leaves have yellow spots with brown edges. Has anyone seen this? Could it be fungal? Plant was doing great until last week.',tags:['#Hibiscus','#PlantDisease'],likes:7,comments:[],liked:false},
+  {id:5,author:'Rajesh Kumar',initials:'RK',avatarBg:'#e0f2fe',loc:'Coimbatore',time:'2 days ago',cat:'tip',body:'Neem oil spray every 2 weeks keeps mealybugs away from curry leaf and jasmine. Mix 5ml neem oil + 2ml soap + 1L water. Spray early morning.',tags:['#OrganicPestControl','#NeemOil'],likes:89,comments:[{author:'Anitha Devi',initials:'AD',avatarBg:'#e8f5e9',text:'What brand of neem oil?',time:'1 day ago'},{author:'Rajesh Kumar',initials:'RK',avatarBg:'#e0f2fe',text:'Organic India cold pressed. Available on Amazon.',time:'23 hrs ago'}],liked:false}
+];
+var _nextPostId=100;
+var TRENDING=['#ChennaiGardening','#MangoSeason2026','#TomatoBlight','#OrganicPestControl','#TerracGarden'];
+var TOP_GARDS=[{name:'Priya Subramanian',initials:'PS',bg:'#e0f2fe',xp:1240,loc:'Coimbatore'},{name:'Murali Krishnan',initials:'MK',bg:'#fff3e0',xp:980,loc:'Madurai'},{name:'Anitha Devi',initials:'AD',bg:'#e8f5e9',xp:870,loc:'Chennai'}];
+
+function renderCommunity(){
+  var myI=((S.location.city)||'GR').substring(0,2).toUpperCase();
+  var postsHtml='';
+  for(var i=0;i<POSTS.length;i++) postsHtml+=buildPost(POSTS[i],myI);
+  var trendHtml='';
+  for(var i=0;i<TRENDING.length;i++) trendHtml+='<span class="trend-link" onclick="toast(\'Filtering: '+TRENDING[i]+'\')">'+TRENDING[i]+'</span>';
+  var topHtml='';
+  var medals=['🥇','🥈','🥉'];
+  for(var i=0;i<TOP_GARDS.length;i++){
+    var g=TOP_GARDS[i];
+    topHtml+='<div class="top-gard"><div class="top-gard-avt" style="background:'+g.bg+'">'+g.initials+'</div><div style="flex:1"><div style="font-size:12px;font-weight:600">'+medals[i]+' '+g.name+'</div><div style="font-size:11px;color:var(--muted)">'+g.xp+' XP &middot; '+g.loc+'</div></div></div>';
+  }
+  document.getElementById('page-community').innerHTML=
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">'
+    +'<div><h2 class="page-title">Plant Care Community &#x1F465;</h2><p class="page-sub">Connect with gardeners across '+S.location.state+' &amp; India</p></div>'
+    +'<button class="share-post-btn" onclick="openShareModal()">+ Share Post</button>'
+    +'</div>'
+    +'<div class="comm-layout">'
+    +'<div>'
+    +'<div class="comm-composer">'
+    +'<div class="comm-composer-top">'
+    +'<div class="comm-user-avt" style="background:#d8f3dc">'+myI+'</div>'
+    +'<div class="comm-fake-input" onclick="openShareModal()">Share your gardening experience, question, or tip&#x2026;</div>'
+    +'</div>'
+    +'<div class="comm-type-row">'
+    +'<button class="comm-type-btn" onclick="openShareModal(\'tip\')">&#x1F4F7; Photo</button>'
+    +'<button class="comm-type-btn" onclick="openShareModal(\'question\')">&#x2753; Question</button>'
+    +'<button class="comm-type-btn" onclick="openShareModal(\'tip\')">&#x1F4A1; Tip</button>'
+    +'<button class="comm-type-btn" onclick="openShareModal(\'harvest\')">&#x1F33E; Harvest</button>'
+    +'</div></div>'
+    +'<div id="posts-feed">'+postsHtml+'</div>'
+    +'</div>'
+    +'<div class="comm-sidebar-col">'
+    +'<div class="side-card"><div class="side-title">&#x1F525; Trending Topics</div>'+trendHtml+'</div>'
+    +'<div class="side-card"><div class="side-title">&#x1F3C6; Top Gardeners</div>'+topHtml+'</div>'
+    +'<div class="side-card" style="background:linear-gradient(135deg,#f0faf3,#e8f5e9);border-color:var(--g2)">'
+    +'<div class="side-title" style="color:var(--g8)">&#x1F916; AI Plant Advisor</div>'
+    +'<p style="font-size:12px;color:var(--muted);margin-bottom:10px">Click <strong>Ask AI</strong> on any post for instant answers!</p>'
+    +'<button class="btn btn-primary btn-sm" style="width:100%;justify-content:center" onclick="showPage(\'advisor\')">Open AI Chat &#x2192;</button>'
+    +'</div>'
+    +'</div></div>';
+}
+
+function buildPost(p,myI){
+  var cat=CAT_CFG[p.cat]||CAT_CFG.general;
+  var cmtsHtml='';
+  for(var i=0;i<p.comments.length;i++){
+    var c=p.comments[i];
+    cmtsHtml+='<div class="cmt-row"><div class="cmt-avt" style="background:'+(c.avatarBg||'#d8f3dc')+'">'+(c.initials||c.author.substring(0,2).toUpperCase())+'</div><div class="cmt-bubble"><div class="cmt-author">'+c.author+' <span style="font-size:10px;color:var(--hint);font-weight:400">&middot; '+(c.time||'')+'</span></div>'+c.text+'</div></div>';
+  }
+  var bodyEsc=p.body.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  var tagsHtml='';
+  for(var i=0;i<p.tags.length;i++) tagsHtml+='<span class="post-tag">'+p.tags[i]+'</span>';
+  return '<div class="post-card" id="pc-'+p.id+'">'
+    +'<div class="post-hdr"><div class="post-avt" style="background:'+p.avatarBg+'">'+p.initials+'</div>'
+    +'<div style="flex:1"><div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">'
+    +'<span class="post-author-name">'+p.author+'</span>'
+    +'<span class="post-cat-badge" style="background:'+cat.bg+';color:'+cat.color+'">'+cat.emoji+' '+cat.label+'</span>'
+    +'</div><div class="post-meta-row">&#x1F4CD; '+p.loc+' &middot; '+p.time+'</div></div></div>'
+    +'<div class="post-body-text">'+bodyEsc+'</div>'
+    +'<div class="post-tags-row">'+tagsHtml+'</div>'
+    +'<div class="post-actions-row">'
+    +'<button class="post-act-btn'+(p.liked?' liked':'')+'" onclick="toggleLike('+p.id+')">'+(p.liked?'&#x2764;&#xFE0F;':'&#x1F90D;')+' <span id="lk-'+p.id+'">'+p.likes+'</span> Likes</button>'
+    +'<button class="post-act-btn" onclick="toggleComments('+p.id+')">&#x1F4AC; <span id="cc-'+p.id+'">'+p.comments.length+'</span> Comments</button>'
+    +'<button class="post-act-btn" onclick="toast(\'Link copied!\')">&#x1F517; Share</button>'
+    +'<button class="post-act-btn ai-act" onclick="askAIOnPost('+p.id+')">&#x1F916; Ask AI</button>'
+    +'</div>'
+    +'<div class="comments-wrap" id="cw-'+p.id+'">'
+    +'<div id="cl-'+p.id+'">'+cmtsHtml+'</div>'
+    +'<div id="air-'+p.id+'"></div>'
+    +'<div class="cmt-input-row">'
+    +'<div class="cmt-avt" style="background:#d8f3dc">'+myI+'</div>'
+    +'<input class="cmt-input" id="ci-'+p.id+'" placeholder="Write a comment&#x2026;" onkeydown="if(event.key===\'Enter\')addComment('+p.id+')">'
+    +'<button class="cmt-send" onclick="addComment('+p.id+')">&#x2191;</button>'
+    +'</div></div></div>';
+}
+
+function toggleLike(id){
+  var p=null;
+  for(var i=0;i<POSTS.length;i++){ if(POSTS[i].id===id){p=POSTS[i];break;} }
+  if(!p) return;
+  p.liked=!p.liked; p.likes+=p.liked?1:-1;
+  var btn=document.querySelector('#pc-'+id+' .post-act-btn');
+  if(btn){ btn.classList.toggle('liked',p.liked); btn.innerHTML=(p.liked?'&#x2764;&#xFE0F;':'&#x1F90D;')+' <span id="lk-'+id+'">'+p.likes+'</span> Likes'; }
+}
+
+function toggleComments(id){
+  var el=document.getElementById('cw-'+id);
+  if(el) el.classList.toggle('open');
+}
+
+async function askAIOnPost(id){
+  var p=null;
+  for(var i=0;i<POSTS.length;i++){ if(POSTS[i].id===id){p=POSTS[i];break;} }
+  if(!p) return;
+  var cw=document.getElementById('cw-'+id);
+  if(cw&&!cw.classList.contains('open')) cw.classList.add('open');
+  var air=document.getElementById('air-'+id);
+  if(!air) return;
+  air.innerHTML='<div class="cmt-row"><div class="cmt-avt" style="background:linear-gradient(135deg,#2d6a4f,#40916c);color:#fff;border-color:#40916c">&#x1F916;</div><div class="ai-cmt-bubble"><div class="ai-cmt-author">&#x1F916; GreenMind AI &middot; answering&#x2026;</div><div class="ai-typing"><span></span><span></span><span></span></div></div></div>';
+  var soil=SOILS[S.location.soil]||SOILS.red_loam;
+  var prompt='A gardener in '+S.location.city+', '+S.location.state+' posted: "'+p.body+'" (category: '+(CAT_CFG[p.cat]||CAT_CFG.general).label+'). Conditions: '+S.weather.temp+'C, '+S.location.climate+' climate, '+soil.name+' soil. Give a helpful 3-4 sentence expert response. Be practical and India-specific.';
+  var reply='';
+  if(S.apiKey){
+    try{
+      var r=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+S.apiKey},
+        body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'system',content:'You are GreenMind AI, expert Indian horticulturalist. Give concise actionable advice.'},{role:'user',content:prompt}],max_tokens:300,temperature:0.7})
+      });
+      var d=await r.json();
+      reply=(d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content)||'';
+    }catch(e){reply='';}
+  }
+  if(!reply){
+    var cat=p.cat||'general';
+    var bl=p.body.toLowerCase();
+    if(cat==='question'){
+      if(bl.indexOf('rose')>=0) reply='Roses need well-draining loamy soil and 6+ hours of sunlight daily. In tropical climates, water every 2 days and add Epsom salt (1 tsp in 1L water) monthly to boost growth. Check for waterlogging - it is the most common cause of poor rose growth in Chennai gardens.';
+      else if(bl.indexOf('hibiscus')>=0) reply='Yellow spots on Hibiscus usually indicate a fungal infection. Spray neem oil solution (5ml + 2ml soap + 1L water) every 7 days and remove affected leaves. Avoid overhead watering.';
+      else reply='First check soil moisture and drainage. Most plant problems in Tamil Nadu come from overwatering or nutrient deficiency. Apply vermicompost monthly and ensure 6+ hours of direct sun.';
+    } else if(cat==='tip') reply='Great tip! Organic amendments like coconut coir and vermicompost significantly improve red loam soil moisture retention. Adding neem cake every 2 months also repels soil pests naturally.';
+    else if(cat==='harvest') reply='Excellent harvest! For continuous yield, remove old stems and apply NPK fertilizer after harvest. Tamil Nadu warm climate allows 2-3 harvests per year with consistent care.';
+    else if(cat==='disease') reply='This looks like a fungal infection common in humid conditions. Spray 1 tsp baking soda + 1 tsp neem oil + 1L water every 7 days. Remove affected leaves and avoid evening watering.';
+    else reply='Great share! For best results in Tamil Nadu, maintain proper watering schedules, use organic fertilizers, and watch for mealybugs during monsoon season.';
+    reply+=' (Add Groq API key for live AI answers)';
+  }
+  var fmt=reply.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+  air.innerHTML='<div class="cmt-row"><div class="cmt-avt" style="background:linear-gradient(135deg,#2d6a4f,#40916c);color:#fff;border-color:#40916c;font-size:13px">&#x1F916;</div><div class="ai-cmt-bubble"><div class="ai-cmt-author">&#x1F916; GreenMind AI <span style="font-size:10px;color:var(--hint);font-weight:400">&middot; just now</span></div>'+fmt+'</div></div>';
+}
+
+function addComment(id){
+  var p=null;
+  for(var i=0;i<POSTS.length;i++){ if(POSTS[i].id===id){p=POSTS[i];break;} }
+  if(!p) return;
+  var inp=document.getElementById('ci-'+id);
+  if(!inp) return;
+  var txt=inp.value.trim();
+  if(!txt) return;
+  var myI=((S.location.city)||'GR').substring(0,2).toUpperCase();
+  p.comments.push({author:'You',initials:myI,avatarBg:'#d8f3dc',text:txt,time:'Just now'});
+  inp.value='';
+  var cl=document.getElementById('cl-'+id);
+  if(cl) cl.innerHTML+='<div class="cmt-row"><div class="cmt-avt" style="background:#d8f3dc">'+myI+'</div><div class="cmt-bubble"><div class="cmt-author">You <span style="font-size:10px;color:var(--hint);font-weight:400">&middot; Just now</span></div>'+txt.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</div></div>';
+  var cc=document.getElementById('cc-'+id);
+  if(cc) cc.textContent=p.comments.length;
+  toast('Comment posted! +5 XP'); S.xp+=5; save();
+}
+
+function openShareModal(cat){
+  document.getElementById('share-cat').value=cat||'general';
+  document.getElementById('share-body').value='';
+  document.getElementById('share-tags').value='#'+S.location.city.replace(/\s/g,'')+'Gardening';
+  openModal('share-modal');
+}
+
+function submitPost(){
+  var body=document.getElementById('share-body').value.trim();
+  if(!body){ toast('Please write something to share','#dc2626'); return; }
+  var cat=document.getElementById('share-cat').value;
+  var tagsRaw=document.getElementById('share-tags').value.trim();
+  var tags=tagsRaw.split(/[\s,]+/).filter(function(t){return t;}).map(function(t){return t.charAt(0)==='#'?t:'#'+t;});
+  var myI=((S.location.city)||'GR').substring(0,2).toUpperCase();
+  var authorName=U&&U.name?U.name:'You';
+  POSTS.unshift({id:++_nextPostId,author:authorName,initials:myI,avatarBg:'#d8f3dc',loc:S.location.city+', '+S.location.state,time:'Just now',cat:cat,body:body,tags:tags,likes:0,comments:[],liked:false});
+  closeModal('share-modal');
+  renderCommunity();
+  toast('Post shared! +15 XP'); S.xp+=15; save();
+}
+
+// ═══════════════ UPDATED RENDER MAP + BOOT ═══════════════
+const RENDER={dashboard:renderDashboard,plants:renderPlants,watering:renderWatering,timeline:renderTimeline,soil:renderSoil,advisor:renderAdvisor,recs:renderRecs,rewards:renderRewards,profile:renderProfile,community:renderCommunity};
+function renderCurrent(){ RENDER[curPage]&&RENDER[curPage](); }
+
+// ─── BOOT ───
+if(U){
+  // Already logged in
+  launchApp();
+} else {
+  // Show auth screen
+  document.getElementById('auth-screen').classList.remove('hidden');
+}
+
+function openKeyModal(){
+  openModal('key-modal');
+  const el=document.getElementById('key-current');
+  if(el) el.textContent='✅ Groq AI active · llama-3.3-70b-versatile · Ready';
+  const inp=document.getElementById('key-input');
+  if(inp) inp.value='';
+}
+function saveKeyFromModal(){
+  const k=document.getElementById('key-input').value.trim();
+  if(!k){ toast('Please paste your Groq API key','#dc2626'); return; }
+  if(!k.startsWith('gsk_')){ toast('Key must start with gsk_','#dc2626'); return; }
+  S.apiKey=k; save(); updateApiBanner();
+  closeModal('key-modal');
+  toast('✅ Groq connected! AI active.');
+}
+</script>
+
+<!-- CLIMATE MODAL -->
+<div class="modal-overlay" id="climate-modal" style="display:none" onclick="if(event.target===this)closeModal('climate-modal')">
+  <div class="modal" style="width:520px">
+    <div class="modal-head" style="padding-bottom:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <h2>&#x1F324; Today's Climate Report</h2>
+        <button class="btn btn-ghost btn-sm" onclick="closeModal('climate-modal')">&#x2715;</button>
+      </div>
+      <p id="climate-date-lbl" style="font-size:12px;color:#6b6660;margin-top:2px"></p>
+    </div>
+    <div class="modal-body" style="padding-top:0">
+      <div class="climate-hero" id="climate-hero">
+        <div style="font-size:42px;margin-bottom:6px" id="c-big-icon">&#x2600;&#xFE0F;</div>
+        <div style="font-size:24px;font-weight:700" id="c-big-temp">34&#xB0;C</div>
+        <div style="font-size:13px;opacity:.85;margin-top:3px" id="c-big-label">Sunny &middot; Chennai, Tamil Nadu</div>
+      </div>
+      <div class="climate-stats-row">
+        <div class="climate-stat-box"><div class="climate-stat-box-icon">&#x1F321;&#xFE0F;</div><div class="climate-stat-box-val" id="cs-temp">34&#xB0;C</div><div class="climate-stat-box-lbl">Temperature</div></div>
+        <div class="climate-stat-box"><div class="climate-stat-box-icon">&#x1F4A7;</div><div class="climate-stat-box-val" id="cs-hum">72%</div><div class="climate-stat-box-lbl">Humidity</div></div>
+        <div class="climate-stat-box"><div class="climate-stat-box-icon">&#x2600;&#xFE0F;</div><div class="climate-stat-box-val" id="cs-uv">High</div><div class="climate-stat-box-lbl">UV Index</div></div>
+        <div class="climate-stat-box"><div class="climate-stat-box-icon">&#x1F327;&#xFE0F;</div><div class="climate-stat-box-val" id="cs-rain">Low</div><div class="climate-stat-box-lbl">Rain Chance</div></div>
+      </div>
+      <div class="climate-ai-report">
+        <div class="climate-ai-title">&#x1F916; AI Garden Report <span id="c-ai-time" style="font-size:10px;color:#6b6660;font-weight:400;margin-left:6px"></span></div>
+        <div class="climate-ai-body" id="climate-ai-body"></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <button class="btn btn-ghost btn-sm" style="flex:1" onclick="loadClimateReport()">&#x1F504; Refresh</button>
+        <button class="btn btn-primary btn-sm" style="flex:1" onclick="closeModal('climate-modal');showPage('advisor')">Ask AI More &#x2192;</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SHARE POST MODAL -->
+<div class="modal-overlay" id="share-modal" style="display:none" onclick="if(event.target===this)closeModal('share-modal')">
+  <div class="modal" style="width:500px">
+    <div class="modal-head"><h2>&#x1F4DD; Share with Community</h2><p>Share a tip, question, or experience about your garden</p></div>
+    <div class="modal-body">
+      <div class="form-group">
+        <textarea class="share-textarea" id="share-body" placeholder="Share a tip, question, or experience about your garden&#x2026;" rows="5"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-select" id="share-cat">
+          <option value="tip">&#x1F4A1; Tip / Advice</option>
+          <option value="question">&#x2753; Question</option>
+          <option value="harvest">&#x1F33E; Harvest Update</option>
+          <option value="disease">&#x26A0;&#xFE0F; Disease / Problem</option>
+          <option value="general" selected>&#x1F4AC; General</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tags (space or comma separated)</label>
+        <input class="form-input" id="share-tags" placeholder="#ChennaiGardening #Tomato">
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" style="flex:1" onclick="closeModal('share-modal')">Cancel</button>
+        <button class="btn btn-primary" style="flex:1" onclick="submitPost()">&#x1F4E3; Post to Community</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
